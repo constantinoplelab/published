@@ -1,6 +1,6 @@
 # ofc_glm: generalized linear modeling and clustering of lOFC responses
 
-This is the code used in Hocker D, Brody CD, Savin C, Constantinople CM. Subpopulations of neurons in lOFC encode previous and current rewards at time of choice. eLife 2021;10:e70129
+This is the code used in [Hocker D, Brody CD, Savin C, Constantinople CM. Subpopulations of neurons in lOFC encode previous and current rewards at time of choice. eLife 2021;10:e70129](https://elifesciences.org/articles/70129)
 
 The analysis in this work was based on two primary sets of analysis: 1) building and fitting a generalized linear model to lOFC responses and 2) performing clustering on lOFC neural data to understand the population-level organization of neural responses. 
 
