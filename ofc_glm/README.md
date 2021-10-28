@@ -24,7 +24,7 @@ The data associated with this work can be found on Zenodo at https://doi.org/10.
 ## Demos
 Simple examples have been provided for the following:
 * visualizing cluster-averaged responsed
-* fitting a single neuron GLM model,
+* fitting a single neuron GLM model
 * running the clustering pipeline
 * evaluating the gap statistic
 * calulating CPD for a sample neuron
