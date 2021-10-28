@@ -1,0 +1,42 @@
+#files that shouldnt be added to the repo
+
+#tmp files
+*~
+
+#any raw data, since it is too big
+./data/
+
+
+#folders that I dont really want added in right now
+./encoding/gtstudy/*
+./old/*
+./results/*
+
+#.mat files, as they are output data (might remove this later)
+*.mat
+
+#python data files
+*.p
+*.npy
+
+
+#writing files
+*.log
+*.aux
+*.pdf
+*synctex.gz
+
+#slurm files
+*.out
+*.err
+
+#image and result files
+*.png
+*.eps
+*.jpg
+*.fig
+*.svg
+*.ai
+
+#latex maybe?
+*.DS_Store
