@@ -5,9 +5,23 @@
 
 %% add paths and set up load and save directories
 
-codedir = '/Users/dhocker/projects/ofc';
+%redefine these for your local machine!
+
+%where the repo lives
+codedir = '/Users/dhocker/projects/constantinoplelab/published/ofc_glm/'; 
+%where you want GLM data to be saved. 
 savedir = fullfile('/Users/dhocker/projects/ofc/results/'); 
 datadir = '/Users/dhocker/projects/ofc/data/published/units/';
+
+%% set up the paths
+
+%where the individual units live
+datadir_units = strcat(datadir,'units/');
+
+%if savedir doesn't exist, make it
+if ~exist(savedir,'dir')
+    mkdir(savedir)
+end
 
 addpath(genpath(codedir));
 
@@ -16,7 +30,7 @@ addpath(genpath(codedir));
 
 namebase = 'fit_stim2020903_N'; %name prefix for saved glm file
 popname = 'pop_stim2020903'; %the savedir suffix %TODO: needed?
-file_id = 22; %TODO: find best neuron
+file_id = 170; %TODO: find best neuron
 
 dataname = strcat([datadir,'unit_',num2str(file_id),'.mat']);
 
@@ -50,7 +64,7 @@ fun_glmfit(ops);
 
 %load model
 f = load(ops.fname);
-
+%%
 basefuns = f.stim.basefuns{2}; %the basis functions
 stimnames = f.stim.stimlegend; %names of the kernels
 tvec = f.ops.dt:f.ops.dt:f.ops.ls(1)*f.ops.dt; %all ls are the same for this model
@@ -95,9 +109,7 @@ tmax = 4; %finish simulation time from alignment event
 %parse up trials and simulate from model
 [rate_dat,lambda,trial_idx_clip,lambda_var] = cleantrials(f,trialmask,alignment,tmin,tmax,ops);
 
-
 condmask = true(size(trial_idx_clip));
-
 tvec = tmin:ops.dt:tmax;
 
 psth_dat = nanmean(rate_dat(condmask,:));

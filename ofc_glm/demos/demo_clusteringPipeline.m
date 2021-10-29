@@ -1,6 +1,13 @@
 %demo for running the clustering pipeline and the gap statistic
 
-%% create the intial building blocks for features
+%% paths to stuff on local machine
+datadir = '~/projects/ofc/data/published/'; %where raw data is stored
+savedir = '/Users/dhocker/projects/ofc/results/demo/'; %where will feature space data be stored
+codedir = '~/projects/constantinoplelab/published/ofc_glm/';
+
+addpath(genpath(codedir));
+
+%% create the intial building blocks for features. long run time. ~5 min
 ops = struct();
 
 %set up a form often used: 90% bootstrap sampling, with repalcement.
@@ -10,8 +17,8 @@ ops.usezscore = true; %z-scored responses as feature space
 ops.bootstrap_proportion = 0.9; %proportion of samples in bootstrap
 ops.bootstrap_replacement = true; % with replacement= = true
 ops.normfet = 0.9; %is z-score is false, should features be normalzied by max response?
-ops.savedir = '/Users/dhocker/projects/ofc/results/demo/'; %where will data be stored
-ops.datadir = '~/projects/ofc/data/published/';
+ops.savedir = savedir;
+ops.datadir = datadir;
 
 [fname_base] = sourceFeatures_ofc(ops); %source features from basic aspects of data
 
@@ -19,19 +26,19 @@ ops.fname_base = fname_base; %the save name for the source features
 
 
 %% or just load a previous set
-%ops = struct();
-%ops.savedir = '/Users/dhocker/projects/ofc/results/demo/'; %where will data be stored
-%ops.datadir = '~/projects/ofc/data/published/';
 
-%fname_base = 'ofcFeaturebase_Z_bs90Rep_ns_100.mat';
-%ops.psthfile = 'psth_conditional_all.mat';
-%ops.fname_basemodel = 'ofcFeaturebase_models.mat';
+ops = struct();
+ops.savedir = savedir; 
+ops.datadir = datadir;
+
+fname_base = 'ofcFeaturebase_Z_bs90Rep_ns_100.mat';
+ops.fname_base = fname_base;
+ops.psthfile = 'psth_conditional_all.mat';
 
 
-%f = load(strcat(ops.datadir,fname_base));
-%p = load(strcat(ops.datadir,ops.psthfile));
-%fmod = load(strcat(ops.datadir,ops.fname_basemodel));
-
+f = load(strcat(ops.savedir,fname_base));
+p = load(strcat(ops.savedir,ops.psthfile));
+%}
 
 %% choose a specific feature type and build that feature space
 
@@ -68,6 +75,7 @@ save(savename,'fet_proc','fet','fet_sem','fet_legend','ops');
 
 %% calculte PAIRS
 
+f = load(savename);
 fet_proc = f.fet_proc(:,:,1);
 kval = 3; %for cond clustering. k=8. for psth clustering: k=3
 nset = 100; %for real comp. use 10k
