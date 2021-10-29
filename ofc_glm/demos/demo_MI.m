@@ -2,19 +2,30 @@
 
 %% choose a neuron and its glm fit, as well as place to save
 
-file_idx = 22;
 
-datadir = '~/projects/ofc/data/published/units/'; %where raw data lives
-datadir_agg = '~/projects/ofc/data/published/'; %where aggregated data lives
-savedir = '~/projects/ofc/results/demo/'; %where CPD should be saved
+%% paths to stuff on local machine
+datadir = '~/projects/ofc/data/published/'; %where raw data is stored
 
+
+%where will feature space data be stored. and where glm fit file is stored
+%can change them to be separate directories if you would like
+savedir = '/Users/dhocker/projects/ofc/results/demo/'; 
+
+codedir = '~/projects/constantinoplelab/published/ofc_glm/'; %where code lives
+
+file_idx = 22; %neuron to compute MI on
+
+addpath(genpath(codedir));
+
+%this is the name of the output glm fit from the demo, but can in general
+%gen anything
 fname_glm = strcat(savedir,'fit_stim2020903_N',num2str(file_idx),'.mat');
 
 
 %% load the A struct of concatenated data 
 %to help with creating trial contingency masks
 
-D = load(strcat(datadir_agg,'concatdata_ofc_noOptOut.mat'));
+D = load(strcat(datadir,'concatdata_ofc_noOptOut.mat'));
 A = D.A;
 clear D
 
