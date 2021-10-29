@@ -67,7 +67,6 @@ alcell = {'start','leavecpoke','choice'};
 %this requires groups of condtypes and condmasks that deal with the same
 %situation
 
-disp('mutual information')
 
 j = 1; %index in the helper lists above. which cpd calc to perform
 
@@ -86,6 +85,7 @@ ops.simtype = 'glm'; %how to simulate form GLM
 ops.nsamp = 500; %number of samples from Poiss. dist in each time bin
 
 
+disp('beginning MI calc')
 [MI,shuffmean,shuffstd,shuffsig,Hs] = MutualInformation(fname_glm,ops);
 
     
@@ -101,7 +101,7 @@ figure(89)
 clf
 plot(tmesh,MI/dt,'linewidth',2);
 vline(0,'k')
-xlabel(strcat(['time to ',alignlist_cpd{j}]))
+xlabel(strcat(['time to ',ops.alignment]))
 ylabel(' MI (bits/s)')
 title(strcat('MI: ',groupnames{j}))
 set(gca,'fontsize',15)

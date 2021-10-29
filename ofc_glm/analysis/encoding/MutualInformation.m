@@ -52,7 +52,7 @@ end
 %point-estimate normal one: lambda = exp(mu_t)
 [~,lambda_glm,trial_idx_clip] = cleantrials(f,trialmask,ops.alignment, ops.tmin,ops.tmax,[]);
 
-
+disp('simulating firing rate from model')
 %filter out some trials so only relevant conditions are present
 %this is a way to get at mutual information at a finer level
 if isfield(ops,'condmask')             
@@ -86,6 +86,7 @@ pvec = zeros(n_cond,1);
 
 %% the sampling approach
 
+disp('sampling spike counts from model')
 shuff_trials = zeros(nshuff,ns);
 for j = 1:nshuff
     shuff_trials(j,:) = randperm(ns);
@@ -129,7 +130,7 @@ Hj = zeros(n_cond,nt);
 Hj_shuff = zeros(nshuff,n_cond,nt);
 
 
-
+disp('generating shuffled data')
 for j = 1:n_cond
     %mask out each condition as categories of the stimulus distribution
     %account for edge clipping
@@ -163,6 +164,8 @@ for j = 1:n_cond
 
 end
 
+
+disp('calculating MI')
 MI_shuff_samp = zeros(nshuff,nt);
 
 %what will H be? via the proper marginal
@@ -187,6 +190,7 @@ end
 shuffmean = nanmean(MI_shuff_samp);
 shuffstd = nanstd(MI_shuff_samp);
 
+disp('assessing significance')
 %for every time point, calculate the 95% CI
 for l = 1:nt
     mh = MI_shuff_samp(~isnan(MI_shuff_samp(:,l)),l);
@@ -197,6 +201,7 @@ for l = 1:nt
     end
 end
 
+disp('done')
 
     
 
