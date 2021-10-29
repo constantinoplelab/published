@@ -76,7 +76,7 @@ j = 1; %index in the helper lists above. which cpd calc to perform
 
 disp(strcat(['CPD TYPE: ',groupnames_cpd{j}]))
 ops = struct();
-ops.datadir = datadir; %where raw data lives. TODO delete?
+ops.datadir = datadir; %where raw data lives
 ops.fname_glm = fname_glm; %filename of glm  fit being used for calc.
 ops.alignment = alignlist_cpd{j}; %what even is used for alignment 
 ops.masktype = 'all'; %'test' data or 'all' data? 
@@ -103,7 +103,7 @@ Vtsig(Vtsig < shuffsig) = 0;
 
 savename = strcat(savedir,groupnames_cpd{j},'_',num2str(file_idx),'.mat');
 
-save(savename,'Vtsig','Vt','Vtshuff','shuffmean','shuffstd','shuffsig')
+save(savename,'Vtsig','Vt','Vtshuff','shuffmean','shuffstd','shuffsig','ops')
     
 
 %% plot
