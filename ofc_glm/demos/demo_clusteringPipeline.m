@@ -2,7 +2,10 @@
 
 %% paths to stuff on local machine
 datadir = '~/projects/ofc/data/published/'; %where raw data is stored
-savedir = '/Users/dhocker/projects/ofc/results/demo/'; %where will feature space data be stored
+
+%where will feature space data be stored. and where glm fit file is stored
+%can change them to be separate directories if you would like
+savedir = '/Users/dhocker/projects/ofc/results/demo/'; 
 codedir = '~/projects/constantinoplelab/published/ofc_glm/';
 
 addpath(genpath(codedir));
