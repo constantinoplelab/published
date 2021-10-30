@@ -16,9 +16,10 @@ function [MI_td,shuffmean,shuffstd,shuffsig,Hs]...
 %
 %
 %Outputs,  nt time points in an event-aligned trial:
-%   MI_td (1 x nt) matrix of model-predicted rate
+%   MI_td (1 x nt) raw, significance-UNcorrected mutual information
 %   shuffmean (nt x 1) vector of shuffled distribution mean
 %   shuffstd (nt x 1) vector of shuffle distrbution standard deviation
+%   shufsig (nt x 1) vector of the cutoff value for a significant MI value
 %   Hs: Entropy of stimulus, in bits
 
 f = load(fname); %load glm fit
@@ -29,7 +30,7 @@ nt = numel(tmesh);
 nshuff = 500; %number shuffles for null distribution
 
 %reference dist parts. 95% confidence interval boundary
-shuffsig = zeros(nt,1);
+shuffsig = zeros(1,nt);
 
 %calculate firing rates according to log-normal distribution
 %obtain timd-dependent mean and standard deviation of the log-rate, which
@@ -191,7 +192,12 @@ shuffmean = nanmean(MI_shuff_samp);
 shuffstd = nanstd(MI_shuff_samp);
 
 disp('assessing significance')
+
+%shuffsig = shuffmean + 2*shuffstd;
+    
+
 %for every time point, calculate the 95% CI
+
 for l = 1:nt
     mh = MI_shuff_samp(~isnan(MI_shuff_samp(:,l)),l);
     if ~isempty(mh)
@@ -200,6 +206,7 @@ for l = 1:nt
         shuffsig(l) = x(g95(1)); %first instance
     end
 end
+
 
 disp('done')
 

@@ -88,10 +88,14 @@ ops.nsamp = 500; %number of samples from Poiss. dist in each time bin
 disp('beginning MI calc')
 [MI,shuffmean,shuffstd,shuffsig,Hs] = MutualInformation(fname_glm,ops);
 
+%% this was the raw mutual information being calculated. significance correct
+MI_sig = MI;
+MI_sig(MI_sig < shuffsig) = 0;
+
     
 %% save   
 savename = strcat([savedir,'MutualInformation_N',num2str(file_idx),'_',groupnames{j},'.mat']);
-save(savename,'MI','shuffmean','shuffstd','Hs',...
+save(savename,'MI_sig','MI','shuffmean','shuffstd','Hs',...
     'shuffsig','ops')
 
 %% plot
@@ -99,7 +103,7 @@ dt=0.05;
 tmesh = ops.tmin:dt:ops.tmax;
 figure(89)
 clf
-plot(tmesh,MI/dt,'linewidth',2);
+plot(tmesh,MI_sig/dt,'linewidth',2);
 vline(0,'k')
 xlabel(strcat(['time to ',ops.alignment]))
 ylabel(' MI (bits/s)')
