@@ -2,13 +2,18 @@
 
 %% choose a neuron and its glm fit, as well as place to save
 
-file_idx = 22;
+file_idx = 170;
 
 datadir = '~/projects/ofc/data/published/units/'; %where raw data lives
 datadir_agg = '~/projects/ofc/data/published/'; %where aggregated data lives
 savedir = '~/projects/ofc/results/demo/'; %where CPD should be saved
+codedir = '~/projects/constantinoplelab/published/ofc_glm/'; %where code lives
+
+addpath(genpath(codedir));
 
 fname_glm = strcat(savedir,'fit_stim2020903_N',num2str(file_idx),'.mat');
+
+
 
 
 %% load the A struct of concatenated data 

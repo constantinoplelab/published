@@ -25,8 +25,9 @@ function [Vt,Vtshuff,shuffmean,shuffstd] = CPD_noOpt(file_idx,ops)
 %   stimlegend: (nshuff x nt) matrix of shuffled CPD values
 
 
-fname = strcat([ops.fitdir,ops.namebase,num2str(file_idx),'.mat']); 
-f = load(fname);
+%fname = strcat([ops.fitdir,ops.namebase,num2str(file_idx),'.mat']);
+%f = load(fname);
+f = load(ops.fname_glm)
 stim = f.stim;
 alignment = ops.alignment;
 

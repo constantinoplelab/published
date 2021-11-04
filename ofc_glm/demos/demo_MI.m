@@ -13,7 +13,7 @@ savedir = '/Users/dhocker/projects/ofc/results/demo/';
 
 codedir = '~/projects/constantinoplelab/published/ofc_glm/'; %where code lives
 
-file_idx = 22; %neuron to compute MI on
+file_idx = 170; %neuron to compute MI on
 
 addpath(genpath(codedir));
 
