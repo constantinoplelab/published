@@ -109,7 +109,8 @@ clustvec = 2:15;
 nsamp = 100; %number of null dist samples %5k to 10k is best. small here for speed
 
 % calculate gap score
-disp('running gap statistic')
+disp('running gap statistic. results will NOT be K=5 here')
+disp('need at least 5k samples for good convergence. set to nsamp=100 for speed')
 eva = evalclusters(fet,'kmeans','gap','KList',clustvec,'SearchMethod','firstMaxSE','B',nsamp);
 labels = eva.OptimalY; %cluster labels
 N = eva.OptimalK; %number of located clusters
