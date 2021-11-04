@@ -83,7 +83,7 @@ fet_proc = f.fet_proc(:,:,1);
 kval = 3; %for cond clustering. k=8. for psth clustering: k=3
 nset = 100; %for real comp. use 10k
 saveops = struct();
-saveops.saveref = false; %save the reference data?
+saveops.saveref = true; %save the reference data?
 saveops.loadref = true; %load the reference data?
 %saveops.savename = strcat(ops.savedir,'pairs_ref.mat');
 saveops.loadname = strcat(ops.savedir,'pairs_ref.mat');
