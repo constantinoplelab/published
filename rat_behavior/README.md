@@ -19,11 +19,10 @@ This project was developed with Matlab 2019a, and uses the following toolboxes
 	Signal Analyzer
 
 ## Directory structure
-- analysis/ : 
-	- code for analyzing rat beahvior
-- analysis/ : code that works on/analyses/does computation on processed data
-	-encoding/: mutual information and coefficient of partial determination claculations
-	-cluster/: k-means clustering and evaluation of gap statistic, PAIRS
-- vis/: data visualization code
-- demos/: Examples of code use
-- utils/: random use math and visualization coce
+- analysis/ : code for analyzing rat beahvior
+- behavioralModel : code for generating model estimates of wait time or trial initiation time
+  - TrialInitiationTimeModels - models for generating trial initiation times data
+  - WaitTimeModels - models for generating wait time data
+  - utils : utility functions for the models
+- Figures/: data visualization code
+- utils/: random use fitting and visualization code
