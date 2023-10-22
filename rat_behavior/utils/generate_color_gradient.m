@@ -1,0 +1,6 @@
+function cmat = generate_color_gradient(c1, c2, nlines)
+% Generates color gradient from c1 to c2 (as RBG vectors) for nlines
+    cmat = [linspace(c1(1), c2(1), nlines)',...
+        linspace(c1(2), c2(2), nlines)',...
+        linspace(c1(3), c2(3), nlines)'];
+end
