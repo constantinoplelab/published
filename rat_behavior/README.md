@@ -1,6 +1,6 @@
 # rat_behavior: analysis of rat behavior in a temporal wagering task
 
-This is the code used in [Mah, A., Schiereck, S.S., Bossio, V., Constantinople, C.M. (2023). Distinct value computations support rapid sequential decisions. Nature Communications, 2023](https://www.biorxiv.org/content/10.1101/2023.03.14.532617v2](https://www.nature.com/articles/s41467-023-43250-x)
+This is the code used in [Mah, A., Schiereck, S.S., Bossio, V., Constantinople, C.M. (2023). Distinct value computations support rapid sequential decisions. Nature Communications, 2023](https://www.nature.com/articles/s41467-023-43250-x)
 
 The analyses are broken to two primary sets:
 1. Analysis of rat's behavior during the task
