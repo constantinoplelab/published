@@ -1,0 +1,50 @@
+function [betasPos, betasNeg, rpe_by_sess, auc_by_sess,...
+    statsPos, statsNeg] =...
+    DA_CPInByRPE_Regression(bdataMdl, AUC, RPE, usethese, rpe_bnd)
+% DA_CPInByRPE_Regression - Regress DA AUC against model RPE
+% INPUTS:
+%   bdataMdl - Matched 
+%   AUC - Trial-by-trial AUC response
+%   RPE - Trial-by-trial RPE
+%   RPEBins - bins for RPE discretization
+%   usethese - which trials to include
+%   rpeBnd - upper and lower bound to exclude RPEs (symmetrical so only one
+%       bound is needed)
+% OUTPUTS:
+%   AUCMean - Average AUC for each RPEBin
+%   AUCSEM - SEM AUC for each RPEBin
+    dates = unique(bdataMdl.UniqueDay);
+    [betasPos, betasNeg] =...
+        deal(nan(length(dates), 2));
+    
+    [rpe_by_sess, auc_by_sess,...
+        statsPos, statsNeg] = deal(cell(length(dates), 1));
+
+    for dd = 1:length(dates)
+
+        thisday = bdataMdl.UniqueDay == dates(dd);
+
+        rpe = RPE(usethese & thisday);
+        auc = AUC(usethese & thisday);
+
+        in_rpe_bnd = abs(rpe) < rpe_bnd;
+
+        try
+            [betasPos(dd,:), statsPos{dd}] =...
+                robustfit(rpe(rpe > 0 & in_rpe_bnd),...
+                auc(rpe > 0 & in_rpe_bnd));
+        catch
+        end
+
+        try
+            [betasNeg(dd,:), statsNeg{dd}] =...
+                robustfit(rpe(rpe < 0 & in_rpe_bnd),...
+                auc(rpe < 0 & in_rpe_bnd));
+        catch
+        end
+        
+        rpe_by_sess{dd} = rpe(in_rpe_bnd);
+        auc_by_sess{dd} = auc(in_rpe_bnd);
+    end
+   
+end

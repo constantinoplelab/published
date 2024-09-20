@@ -1,0 +1,36 @@
+function [sideOnByDelay, AUC, baseline] =...
+    DA_ResponseByDelay(pdata, bdata, bins,...
+    auc1, auc2, bl1, bl2)
+% DA_ResponseByDelay - calculates average DA response by reward delay
+% INPUTS:
+%   pdata
+%   bdata
+% bins,...
+    auc1, auc2, bl1, bl2
+    dt = mean(diff(pdata.times));
+    [~, i1] = min(abs(pdata.times - auc1));
+    [~, i2] = min(abs(pdata.times - auc2));
+
+    [~, i3] = min(abs(pdata.times - bl1));
+    [~, i4] = min(abs(pdata.times - bl2));
+
+    % mixed block rewarded trials
+    these = bdata.Block == 1 & ~bdata.Catch & ~bdata.OptOut;
+
+    % define bins based on delay distribution
+    delays = bdata.RewardDelay;
+    delays(delays >= 100) = nan;
+
+    binI = discretize(delays, bins);
+
+    sideOnByDelay = nan(length(bins)-1, size(pdata.Data, 2));
+    [AUC, baseline] = deal(nan(length(bins)-1, 1));
+
+    for i = 1:length(bins)-1
+        usethese = these & binI == i;
+        sideOnByDelay(i,:) = mean(pdata.Data(usethese,:), 'omitnan');
+
+        baseline(i) = mean(sideOnByDelay(i,i3:i4));
+        AUC(i) = sum(sideOnByDelay(i,i1:i2))*dt - baseline(i);
+    end
+end
