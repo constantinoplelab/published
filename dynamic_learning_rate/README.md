@@ -1,4 +1,4 @@
-# rat_behavior: analysis of rat behavior in a temporal wagering task
+# dynamic_learning_rate: analysis of a dynamic learning rate in rats and its effect on dopamine signalling in the nucleus accumbens 
 
 This is the code used in [Mah, A., Golden, C. E., Constantinople, C. M. C. Dopamine transients encode reward prediction errors independent of learning rates.](https://www.biorxiv.org/content/10.1101/2024.04.18.590090v2)
 
