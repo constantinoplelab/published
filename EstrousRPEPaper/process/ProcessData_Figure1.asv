@@ -1,0 +1,73 @@
+function ProcessData_Figure1(datadir, codedir, savedir)
+%PlotFigure1 - Plots Figure 1. 
+% INPUTS:
+%   datadir - Local directory where 'Golden_Nature/RawData_Figure1.mat' from Zenodo was saved
+%   codedir - Local directory where code (e.g., published/EstrousRPE/) was saved
+%   savedir - Local directory where you would like the outputs to be saved
+
+%% Set up paths
+s = pathsep;
+pathStr = [s, path, s];
+onPath  = contains(pathStr,...
+    codedir, 'IgnoreCase', ispc);
+if ~onPath % only add code dir to path if it already isn't
+    addpath(genpath(codedir))
+end
+
+%% Load raw data
+%Rat lists
+load([datadir, 'RawData_Figure1'], 'f_ratlist', 'm_ratlist');
+
+%% Process data
+%Rat lists
+ProcessData_Figure1.f_ratlist = RawData_Figure1.f_ratlist;
+ProcessData_Figure1.m_ratlist = RawData_Figure1.m_ratlist;
+
+%Initiation times by block
+% Get data over estrous
+ITIbyBlock_est = ITIbyBlock_estrous(f_ratlist); 
+ProcessData_Figure1.ITIbyBlock.Proestrus = ITIbyBlock_est.Proestrus;
+ProcessData_Figure1.ITIbyBlock.Estrus = ITIbyBlock_est.Estrus;
+ProcessData_Figure1.ITIbyBlock.Metestrus = ITIbyBlock_est.Metestrus;
+ProcessData_Figure1.ITIbyBlock.Diestrus = ITIbyBlock_est.Diestrus;
+beh_sens_staged = ((cell2mat(ITIbyBlock.Proestrus.low_ITI_det) + cell2mat(ITIbyBlock.Diestrus.low_ITI_det))./2) >...
+    ((cell2mat(ITIbyBlock.Proestrus.high_ITI_det) + cell2mat(ITIbyBlock.Diestrus.high_ITI_det))./2); %require that low > high from this point on
+new_f_ratlist = f_ratlist(beh_sens_staged);
+ProcessData_Figure1.newfrats = length(new_f_ratlist);
+
+% Get data from females
+ITIbyBlock_female = ITIbyBlock_females(f_ratlist);
+ITIbyBlock.Female = ITIbyBlock_female.Female;
+
+% Get data from males
+ITIbyBlock_male = ITIbyBlock_males(m_ratlist); %not screening, excluding muscimol rats
+ITIbyBlock.Male = ITIbyBlock_male.Male;
+beh_sens_males = cell2mat(ITIbyBlock.Male.low_ITI_det) >...
+    cell2mat(ITIbyBlock.Male.high_ITI_det); %require that low > high from this point on
+new_m_ratlist = m_ratlist(beh_sens_males);
+ProcessData_Figure1.newmrats = length(new_m_ratlist);
+
+%initiation times at block transitions
+smoothfactor = 15;
+twin = 30;
+Latencydynamics = block_latencydynamics_macro_stages(twin,...
+    smoothfactor,98,'fig1',f_ratlist,0);
+
+% initiation times and estradiol levels from sessions with serum draws
+detrend_arg = 1;
+combine_arg = 0; %combine all data from both experiments
+combinerats_arg = 1; %combine all rats (adding in G131 and 33 from the first experiment)
+[delta_rats, E2_rats] = Estradiol_vs_DeltaInit_bystage(combine_arg,...
+    combinerats_arg, detrend_arg); %not screened
+
+
+
+ProcessData_Figure1.Latencydynamics = Latencydynamics;
+ProcessData_Figure1.delta_rats = delta_rats;
+ProcessData_Figure1.E2_rats = E2_rats;
+
+%% Save processed data
+savedir = 'Z:\Estrus behavior figs\Paper\DataforZenodo\Golden_Nature\ProcessData_Figure1.mat';
+save(savedir, 'ProcessData_Figure1')
+
+end
