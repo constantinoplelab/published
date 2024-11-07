@@ -15,9 +15,9 @@ if ~onPath % only add code dir to path if it already isn't
 end
 
 %% Load raw data
-load([datadir, 'RawData_Figure3'],...
-    'ratTrial', 'Pstruct', 'Bstruct', 'BestFits', 'PstructCPIn',...
-    'Proestrus_last', 'Diestrus_last', 'pro_ratList', 'di_ratList'); 
+load([datadir, 'RawData_Figure3'], 'ratTrial',...
+    'BestFits', 'Pstruct', 'Bstruct', 'PstructCPIn',...
+    'Proestrus_last', 'Diestrus_last', 'pro_ratList', 'di_ratList')
 
 %% Process data
 %Set general variables
@@ -82,7 +82,7 @@ end
 numbins = 7;
 window = 0.5; %AUC window
 event = 'CPIn'; %align to reward offer cue
-[pro_DA_binned, di_DA_binned, RPEbins] = DA_by_RPE_estrous(NAcc_ratlist,...
+[pro_DA_binned, di_DA_binned, RPEbins] = DA_by_RPE_estrous(NAcc_ratlist(1:end-1),...
     PstructCPIn, Bstruct, Proestrus_last, Diestrus_last,...
     pro_ratList, di_ratList, numbins, window, event); %all blocks, last 20 trials, equally spaced bins
 
@@ -130,6 +130,7 @@ for jj=1:2
     Block = ratTrial.block;
     RPE_alphachange = RPEs_alphachange{jj};
     iti_block_avg = NaN(1,2);
+    L = LatOpts{jj};
     for bl = 2:3
         iti_block_avg(bl) = mean(L(Block==bl), 'omitnan');
     end
@@ -140,18 +141,18 @@ for jj=1:2
     isblockchange{jj} = find(blockdifference~=0)+1;  
 
     % 3i latency dynamics
+    ratModel = ratTrial;
+    ratModel.ITI = LatOpts{jj};    
     [ltom{jj}, htom{jj}, mtol{jj}, mtoh{jj}] = block_dynamics_latency(ratModel,...
         twin, smoothfactor, 0, 1, 0, 1); %detrend and use causual smoothing
 
     %3j initiation time regression coefficients
-    ratModel = ratTrial;
-    ratModel.ITI = LatOpts{jj};
     [betas_model_3j{jj},~,~] =...
         regress_latency_vs_rew(ratModel, nback, 0, 0, 0);
 
     %3l RPEs regression coefficients, RPE gain manipulation
     ratModelwRPE = ratTrial;
-    ratModelwRPE.RPE = RPE;
+    ratModelwRPE.RPE = RPEs{jj};
     betas_RPE{jj} = regress_RPE_vs_rew(ratModelwRPE, nback);
 
     %3m RPEs regression coefficients, alpha manipulation
@@ -172,11 +173,11 @@ end
 auc1 = 0; %start of AUC window
 auc2 = 0.5; %end of AUC window
 [BetasPro, BetasDi] = DARegressRewardHistory_estrous(NAcc_ratlist,...
-    Pstruct, Bstruct, auc1, auc2, nback, Stages);
+    PstructCPIn, Bstruct, auc1, auc2, nback, Stages);
 
 %% Save processed data
 save([savedir 'ProcessData_Figure3'],...
-    'ratTrial', 'Kappa_trials', 'Lat_trials', 'betas_model',...
+    'ratTrial', 'LatOpt', 'Kappa_trials', 'Lat_trials', 'betas_model',...
     'algn_vec', 'NAcc_ratlist', 'EncodingWindowAnalysis',...
     'pro_DA_binned', 'di_DA_binned', 'RPEbins', 'LatOpts', 'RPEs',...
     'RPEs_alphachange', 'delta', 'isblockchange', 'ltom', 'htom',...

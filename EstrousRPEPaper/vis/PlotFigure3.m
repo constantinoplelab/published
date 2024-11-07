@@ -15,7 +15,7 @@ end
 
 %% Load data
 load([datadir, 'ProcessData_Figure3'],...
-    'ratTrial', 'Kappa_trials', 'Lat_trials', 'betas_model',...
+    'ratTrial', 'LatOpt', 'Kappa_trials', 'Lat_trials', 'betas_model',...
     'algn_vec', 'NAcc_ratlist', 'EncodingWindowAnalysis',...
     'pro_DA_binned', 'di_DA_binned', 'RPEbins', 'LatOpts', 'RPEs',...
     'RPEs_alphachange', 'delta', 'isblockchange', 'ltom', 'htom',...
@@ -37,7 +37,7 @@ nback = 7;
 %3a. Reinforcement learning model that computes initiation times from kappa
 %(expected value). Example predicted initiation time and kappa over blocks.
 %--------------------------------------------------------------------------
-subplot(6,3,1)
+subplot(1,3,1)
 yl = [0 60];
 mixedcolor=[0.4823529411764706 0.1568627450980392 0.48627450980392156];
 fill([0 40 40 0], [yl(1) yl(1) yl(2) yl(2)],...
@@ -76,7 +76,7 @@ title('a')
 %--------------------------------------------------------------------------
 %3b. Mean and SEM of predicted trial initiation times by block
 %--------------------------------------------------------------------------
-subplot(6,3,2)
+subplot(1,3,2)
 iti_block_avg = NaN(1,2);
 iti_block_er = NaN(1,2);
 Block = ratTrial.block;
@@ -108,7 +108,7 @@ title('b')
 %3c. Regression of previous trial reward volumes on predicted initiation
 %times
 %--------------------------------------------------------------------------
-subplot(6,3,3)
+subplot(1,3,3)
 ratModel = ratTrial;
 ratModel.ITI = LatOpt;
 plot(1:nback, betas_model(1:nback), 'k', 'LineWidth', 0.5); hold on
@@ -130,10 +130,12 @@ title('c')
 % event. Use 100 ms bins. Pooling  across sessions for each rat, average 
 % over rats. Includes 0.5 s baseline before CPIn.
 %--------------------------------------------------------------------------
+figure;
+set(gcf, 'Color', [1 1 1], 'Units', 'Inches', 'Position', [0, 0, 17, 9],...
+    'PaperUnits', 'Inches', 'PaperSize', [9, 5], 'renderer','painters')   
 %Fit model to pooled sessions across rats and use that RPE
 for aa  = 1:length(algn_vec)
     clear l
-    % subplot(6,3,3+aa)
     subplot(1,length(algn_vec),aa)
     algn = algn_vec{aa};
     xtimes = EncodingWindowAnalysis.('G008').(algn).Times;
@@ -158,7 +160,10 @@ end
 %3e. DA AUC at offer cue as a function of model-predicted (using alpha fit to the 
 % 10 trials) RPE
 %--------------------------------------------------------------------------
-subplot(6,3,10)
+figure;
+set(gcf, 'Color', [1 1 1], 'Units', 'Inches', 'Position', [0, 0, 17, 9],...
+    'PaperUnits', 'Inches', 'PaperSize', [9, 5], 'renderer','painters') 
+subplot(3,3,1)
 numbins = 7;
 clear l
 xvec = NaN(numbins, 1);
@@ -186,7 +191,7 @@ effsizes = NaN(numbins-1, 1);
 for bin = 1:numbins
     pvals(bin, 1) = signrank(pro_DA_binned(:, bin), di_DA_binned(:, bin));
     if pvals(bin, 1) < 0.05
-        text(xvec(bin), 0.65, '*')
+        text(xvec(bin), 0.95, '*')
     end
     effsizes(bin, 1) = effsize(pro_DA_binned(:, bin), di_DA_binned(:, bin));
 end
@@ -195,26 +200,28 @@ disp(num2str(pvals'))
 disp(num2str(effsizes'))
 
 %--------------------------------------------------------------------------
-%3f-j, l-m. Predicted block sensitivity and regression with added RPE to larger rewards
+%3g-j, l-m. Predicted block sensitivity and regression with added RPE to larger rewards
 %--------------------------------------------------------------------------
 num2plot = 200;
 twin = 30;
 xvec = (-twin:1:twin);
-lowcolors = {'-b', '-k'};
-highcolors = {'-r', '-k'};
+lowcolors = {'-b', '--b'};
+highcolors = {'-r', '--r'};
+plts = NaN(1, 4);
 for jj=1:2
     RPE = RPEs{jj};
     RPE_alphachange = RPEs_alphachange{jj};
     x = [1 2];
 
     %3g RPE over blocks of trials to show gain
-    subplot(6,3,12)
+    subplot(3,3,3)
     plot(1:num2plot, RPE(1:num2plot), color=cycle_colors{jj}); hold on
     ylabel('RPE'); xlabel('Trial')
     yticks([])
     set(gcf, 'Color', [1 1 1]);
     set(gca, 'TickDir', 'out'); box off;
-    xline(isblockchange,...
+    is_block_change = isblockchange{jj};
+    xline(is_block_change,...
         'k', 'LineWidth', 0.5); hold on
     xlim([0 num2plot])    
     set(gca, 'TickDir', 'out'); box off;    
@@ -222,7 +229,7 @@ for jj=1:2
     title('g')
 
     %3h low - high initiation time
-    subplot(6,3,13)
+    subplot(3,3,4)
     plot(jj, delta{jj}, '.', color='k',...
         MarkerSize=30); hold on
     xlim([.5 2.5]);
@@ -237,7 +244,7 @@ for jj=1:2
     title('h')
 
     % 3i latency dynamics
-    subplot(6,3,15)
+    subplot(3,3,5)
     % Plot as value transitions
     %group high to low value transitions
     hightolow = [htom{jj}; mtol{jj}]; %high to mix, mix to low
@@ -246,11 +253,8 @@ for jj=1:2
     %low to mix, mix to high
     lowtohigh = [ltom{jj}; mtoh{jj}];
     lowtohigh_median = median(lowtohigh, 'omitnan');
-    shadedErrorBar(xvec, hightolow_median, ...
-        sem(hightolow), 'lineprops', lowcolors{jj});
-    shadedErrorBar(xvec, lowtohigh_median, ...
-        sem(lowtohigh), 'lineprops', highcolors{jj});
-    hold on
+    plts((jj-1)*jj+1) = plot(xvec, hightolow_median, lowcolors{jj}); hold on
+    plts((jj-1)*jj+2) = plot(xvec, lowtohigh_median, highcolors{jj}); hold on
     ylims = ylim;
     line([0 0], [ylims(1) ylims(2)], 'Color', [0 0 0], 'LineStyle', '--');
     set(gca, 'TickDir', 'out'); box off
@@ -264,7 +268,7 @@ for jj=1:2
     title('i')
 
     %3j initiation time regression coefficients
-    subplot(6,3,14)
+    subplot(3,3,6)
     ratModel = ratTrial;
     ratModel.ITI = LatOpts{jj};
     this_betas_model = betas_model_3j{jj};
@@ -275,12 +279,13 @@ for jj=1:2
     xlabel('Trials back')
     ylabel('Regression coefficient')
     yline(0, 'k--', 'linewidth', 0.5)
+    yticks([])
     set(gca, 'TickDir', 'out'); box off;
     axis square
     title('j Modeled init. time regression')
 
     %3l RPEs regression coefficients, RPE gain manipulation
-    subplot(6,3,16)
+    subplot(3,3,8)
     ratModelwRPE = ratTrial;
     ratModelwRPE.RPE = RPE;
     these_betas_RPE = betas_RPE{jj};
@@ -291,7 +296,7 @@ for jj=1:2
     xticklabels(0:1:nback)
     xlabel('Trials back')
     ylabel('Regression coefficient')
-    ylim([-17 23])
+    ylim([-20 25])
     yticks([])
     yline(0, 'k--', 'linewidth', 0.5)
     set(gca, 'TickDir', 'out'); box off;
@@ -299,7 +304,7 @@ for jj=1:2
     title('l Modeled RPE regression, RPE gain manipulation')
 
     %3m RPEs regression coefficients, alpha manipulation
-    subplot(6,3,17)
+    subplot(3,3,9)
     ratModelwRPE = ratTrial;
     ratModelwRPE.RPE = RPE_alphachange;
     these_betas_RPE_alphachange = betas_RPE_alphachange{jj};
@@ -310,7 +315,7 @@ for jj=1:2
     xticklabels(0:1:nback)
     xlabel('Trials back')
     ylabel('Regression coefficient')
-    ylim([-14 19])
+    ylim([-17 20])
     yticks([])
     yline(0, 'k--', 'linewidth', 0.5)
     set(gca, 'TickDir', 'out'); box off;
@@ -318,11 +323,14 @@ for jj=1:2
     title('m Modeled RPE regression, alpha manipulation')
     
 end
+subplot(3,3,5)
+legend(plts, {'rpe*gain high to low', 'rpe*gain low to high',...
+    'no gain high to low', 'no gain low to high'})
 
 %--------------------------------------------------------------------------
 %3f Plot RPE as a function of gain applied to RPEs
 %--------------------------------------------------------------------------
-subplot(6,3,11)
+subplot(3,3,2)
 plot(x_RPE_binned, ymean_RPEgain_binned,'.k',markersize=12); hold on
 plot(min(RPEs{2}):1:max(RPEs{2}), min(RPEs{2}):1:max(RPEs{2}), '--k'); hold on
 xlim([min(RPEs{2})+20 max(RPEs{2})+20])
@@ -339,7 +347,7 @@ title('f')
 %3k. Regression coefficients of DA as a function of current and previous 
 % rewards in mixed blocks
 %--------------------------------------------------------------------------
-subplot(6,3,18)
+subplot(3,3,7)
 clear l
 l(1)=shadedErrorBar(1:nback, median(BetasPro(:, 2:nback+1), 'omitnan'),...
     sem(BetasPro(:, 2:nback+1)), 'lineProps', {'-', 'Color',...
@@ -354,7 +362,7 @@ xlim([0.5 nback+0.5])
 ylim([-0.07 0.255])
 xticks(1:nback+1)
 xticklabels(0:1:nback)
-ylim([-0.06 0.29])
+ylim([-0.07 0.28])
 yline(0, '--', color = 'k', linewidth=0.75, HandleVisibility='off')
 xlabel('Trials Back')
 ylabel('Regression coefficient')
