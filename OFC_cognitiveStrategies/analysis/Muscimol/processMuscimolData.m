@@ -36,7 +36,9 @@ for rr = 1:nrats
 
     [~, ~, muscimol.mtol(rr,:), muscimol.mtoh(rr,:), muscimol.ltom(rr,:), muscimol.htom(rr,:), ~] =...
         block_dynamics_wt_binTrials(S2.A, twin, binSize, smoothfactor);
-
+    
+    control.slopes(rr,:) = regressVolume(S1.A, []);
+    muscimol.slopes(rr,:) = regressVolume(S2.A, []);
 end
 
 %wait time curves
