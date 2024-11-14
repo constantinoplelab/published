@@ -5,13 +5,13 @@ nrats = length(ratList1);
 
 nback = 10;
 
-%preallocate matrices
-betasC = nan(nrats, nback+1);
-betasM = betasC;
+hiC = nan(nrats, 5);
+loC = hiC;
+mixC = hiC;
 
-wtPrevRewC = nan(nrats, 2);
-wtPrevRewM = wtPrevRewC;
-
+hiM = hiC;
+loM = hiC;
+mixM = hiC;
 
 for rr = 1:nrats
 
@@ -20,7 +20,7 @@ for rr = 1:nrats
     
     %wait time curves
     [hiC(rr), loC(rr), mixC(rr)] = wtcurves(S1.A);
-    [hiE(rr), loE(rr), mixE(rr)] = wtcurves(S2.A);
+    [hiM(rr), loM(rr), mixM(rr)] = wtcurves(S2.A);
     
     %regress wait time vs reward
     [control.regress(rr,:), ~] = regress_wt_vs_rew(S1.A, nback);
@@ -37,6 +37,7 @@ for rr = 1:nrats
     [~, ~, muscimol.mtol(rr,:), muscimol.mtoh(rr,:), muscimol.ltom(rr,:), muscimol.htom(rr,:), ~] =...
         block_dynamics_wt_binTrials(S2.A, twin, binSize, smoothfactor);
     
+    %slopes
     control.slopes(rr,:) = regressVolume(S1.A, []);
     muscimol.slopes(rr,:) = regressVolume(S2.A, []);
 end
@@ -46,6 +47,6 @@ control.hi = cell2mat(arrayfun(@(x) hiC(x).wt, 1:nrats, 'uniformoutput', false)'
 control.lo = cell2mat(arrayfun(@(x) loC(x).wt, 1:nrats, 'uniformoutput', false)');
 control.mix = cell2mat(arrayfun(@(x) mixC(x).wt, 1:nrats, 'uniformoutput', false)'); 
 
-muscimol.hi = cell2mat(arrayfun(@(x) hiE(x).wt, 1:nrats, 'uniformoutput', false)');
-muscimol.lo = cell2mat(arrayfun(@(x) loE(x).wt, 1:nrats, 'uniformoutput', false)');
-muscimol.mix =  cell2mat(arrayfun(@(x) mixE(x).wt, 1:nrats, 'uniformoutput', false)');
+muscimol.hi = cell2mat(arrayfun(@(x) hiM(x).wt, 1:nrats, 'uniformoutput', false)');
+muscimol.lo = cell2mat(arrayfun(@(x) loM(x).wt, 1:nrats, 'uniformoutput', false)');
+muscimol.mix =  cell2mat(arrayfun(@(x) mixM(x).wt, 1:nrats, 'uniformoutput', false)');
