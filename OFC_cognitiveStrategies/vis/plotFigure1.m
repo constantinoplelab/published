@@ -1,34 +1,45 @@
-function plotFigure1(behaviorDataPath)
+function plotFigure1(savedBehaviorPath)
+%Plot figure 1
+% YOU MUST RUN processBehaviorData BEFORE RUNNING THIS FUNCTION
 
+%INPUTS:
+%   savedBehaviorPath = path to where you have saved the outputs from
+%       running processBehaviorData
+
+%load processed behavior data
+load([savedBehaviorPath, filesep, 'expert.mat'])
+load([savedBehaviorPath, filesep, 'naive.mat'])
+
+%general functions
+sem = @(x) std(x,'omitnan')./sqrt(sum(any(~isnan(x), 2)));
+setDefaultFigProps
 
 twin = 30; %trial window for wait time dynamics plot
 
 x = 1:5;
 xvec = -twin:twin-1;
 q = 1:4;
-fsize = [10 10 20 10];
+fsize = [10 10 20 8];
 
-%% Load processed behavior data
-load([behaviorDataPath, filesep, 'expert.mat'])
-load([behaviorDataPath, filesep, 'naive.mat'])
+%% averages
 
 avgEm = mean(expert.mix, 'omitnan');
-semEm= sem(expert.mix, 'omitnan');
+semEm= sem(expert.mix);
 
 avgEh = mean(expert.hi, 'omitnan');
-semEh = sem(expert.hi, 'omitnan');
+semEh = sem(expert.hi);
 
 avgEl = mean(expert.lo, 'omitnan');
-semEl = sem(expert.lo, 'omitnan');
+semEl = sem(expert.lo);
 
 avgNm = mean(naive.mix, 'omitnan');
-semNm = sem(naive.mix, 'omitnan');
+semNm = sem(naive.mix);
 
 avgNh = mean(naive.hi, 'omitnan');
-semNh = sem(naive.hi, 'omitnan');
+semNh = sem(naive.hi);
 
 avgNl = mean(naive.lo, 'omitnan');
-semNl = sem(naive.lo, 'omitnan');
+semNl = sem(naive.lo);
 
 e_mtol = mean(expert.mtol, 'omitnan');
 e_mtol_sem = sem(expert.mtol);
@@ -78,6 +89,20 @@ n_postLowq1_sem = sem(naive.postLow_q1);
 n_postHighq1 = mean(naive.postHigh_q1, 'omitnan');
 n_postHighq1_sem = sem(naive.postHigh_q1);
 
+%% stats
+
+p_expwt = signrank(expert.lo(:,3), expert.hi(:,3));
+p_expL = anova1(expert.postLow(:, 2:end), [], 'off');
+p_expH = anova1(expert.postHigh(:, 2:end), [], 'off');
+p_expQ1 = (arrayfun(@(x) signrank(expert.postLow_q1(:,x), ...
+    expert.postHigh_q1(:,x)), 1:5)).*5;
+
+p_naivewt = signrank(naive.lo(:,3), naive.hi(:,3));
+p_naiveL = anova1(naive.postLow(:, 2:end), [], 'off');
+p_naiveH = anova1(naive.postHigh(:, 2:end), [], 'off');
+p_naiveQ1 = (arrayfun(@(x) signrank(naive.postLow_q1(:,x), ...
+    naive.postHigh_q1(:,x)), 1:5)).*5;
+
 %% plot
 
 figure; hold on
@@ -112,6 +137,7 @@ ylim([-0.2 0.3])
 yl = ylim;
 xlim([-25 25]);
 line([0 0], [yl(1) yl(2)], 'Color', [0 0 0], 'LineStyle', '--');
+yticks([-0.2, 0, 0.2])
 xlabel('Trial from block switch');
 ylabel('\Delta z-scored wait time');
 % axis square
@@ -128,6 +154,7 @@ ylim([-0.2 0.3])
 yl = ylim;
 xlim([-25 25]);
 line([0 0], [yl(1) yl(2)], 'Color', [0 0 0], 'LineStyle', '--');
+yticks([-0.2, 0, 0.2])
 xlabel('Trial from block switch');
 ylabel('\Delta z-scored wait time');
 % axis square
@@ -145,8 +172,10 @@ shadedErrorBar(q, e_postHigh, e_postHigh_sem, 'lineprops', {'color', ...
 set(gca, 'TickDir', 'out'); box off;
 xlim([0 5]);
 ylim([-0.12 0.15])
+xticks([1:4])
+yticks([-0.1, 0, 0.1])
 xlabel('Quartile')
-ylabel({'Mean z-scored', 'wait wime (s)'})
+ylabel({'Mean z-scored', 'wait time (s)'})
 text(1, 0.14, 'Post-low', 'color', [0.1 0.1 0.6], 'FontSize', 8)
 text(1, 0.11, 'Post-high', 'color', [0.6 0.1 0.1], 'FontSize', 8)
 ax4 = gca;
@@ -163,7 +192,7 @@ set(gca, 'xTick', x);
 set(gca, 'XTickLabels', {'5'; '10'; '20'; '40'; '80'});
 set(gca, 'TickDir', 'out'); box off;
 xlim([0 6]);
-% ylim([10 14.5])
+ylim([9.5 15.5])
 xlabel('Reward offer')
 ylabel('Wait time (s)')
 ax5 = gca;
@@ -197,6 +226,7 @@ ylim([-0.2 0.3])
 yl = ylim;
 xlim([-25 25]);
 line([0 0], [yl(1) yl(2)], 'Color', [0 0 0], 'LineStyle', '--');
+yticks([-0.2, 0, 0.2])
 xlabel('Trial from block switch');
 ylabel('\Delta z-scored wait time');
 % axis square
@@ -213,6 +243,7 @@ ylim([-0.2 0.3])
 yl = ylim;
 xlim([-25 25]);
 line([0 0], [yl(1) yl(2)], 'Color', [0 0 0], 'LineStyle', '--');
+yticks([-0.2, 0, 0.2])
 xlabel('Trial from block switch');
 ylabel('\Delta z-scored wait time');
 % axis square
@@ -229,10 +260,10 @@ shadedErrorBar(q, n_postHigh, n_postHigh_sem, 'lineprops', {'color', ...
 set(gca, 'TickDir', 'out'); box off;
 xlim([0 5]);
 ylim([-0.12 0.15])
+xticks([1:4])
+yticks([-0.1, 0, 0.1])
 xlabel('Quartile')
-ylabel({'Mean z-scored', 'wait wime (s)'})
-text(1, 0.14, 'Post-low', 'color', [0.1 0.1 0.6], 'FontSize', 8)
-text(1, 0.11, 'Post-high', 'color', [0.6 0.1 0.1], 'FontSize', 8)
+ylabel({'Mean z-scored', 'wait time (s)'})
 ax9 = gca;
 ax9.YRuler.TickLabelGapOffset = 1;
 % axis square
@@ -247,7 +278,7 @@ set(gca, 'xTick', x);
 set(gca, 'XTickLabels', {'5'; '10'; '20'; '40'; '80'});
 set(gca, 'TickDir', 'out'); box off;
 xlim([0 6]);
-% ylim([10 14.5])
+ylim([9.5 15.5])
 xlabel('Reward offer')
 ylabel('Wait time (s)')
 ax10 = gca;
