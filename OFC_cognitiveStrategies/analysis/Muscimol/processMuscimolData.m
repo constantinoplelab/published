@@ -5,14 +5,6 @@ nrats = length(ratList1);
 
 nback = 10;
 
-hiC = nan(nrats, 5);
-loC = hiC;
-mixC = hiC;
-
-hiM = hiC;
-loM = hiC;
-mixM = hiC;
-
 for rr = 1:nrats
 
     S1 = load(strcat(muscimolDataPath, ratList1{rr}, '.mat'));
