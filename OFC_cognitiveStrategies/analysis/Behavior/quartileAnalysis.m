@@ -14,19 +14,23 @@ quartiles.postLow = bin_blocks(data, 1, 4, -2, 1:length(data.wait_time), 0); %qu
 quartiles.postHigh = bin_blocks(data, 1, 4, -1, 1:length(data.wait_time), 0);
 
 %compute wait-times by reward for the first quartile following low and high blocks
+use = arrayfun(@(x) find(data.reward == x & data.catch & data.optout ...
+    & data.block == 1), ...
+    1:5, 'UniformOutput', false);
 postLow_q1 = arrayfun(@(x) mean(data.wait_time(intersect(quartiles.postLow{1}, ...
-    find(data.reward == x))), 'omitnan'), 1:5);
+    use{x})), 'omitnan'), 1:5);
 postHigh_q1 = arrayfun(@(x) mean(data.wait_time(intersect(quartiles.postHigh{1}, ...
-    find(data.reward == x))), 'omitnan'), 1:5);
+    use{x})), 'omitnan'), 1:5);
 
 % compute average z-scored wait-times for each quartile in mixed blocks
 % following low and high blocks
+data = detrendwt(data);
 data = deltawt(data); %normalize wait times by reward to combine over rewards
 
 postLow = arrayfun(@(x) mean(data.wait_time(intersect(quartiles.postLow{x}, ...
-    find(data.optout == 1))), 'omitnan'), 1:4);
+    find(data.optout & data.catch))), 'omitnan'), 1:4);
 postHigh = arrayfun(@(x) mean(data.wait_time(intersect(quartiles.postHigh{x}, ...
-    find(data.optout == 1))), 'omitnan'), 1:4);
+    find(data.optout & data.catch))), 'omitnan'), 1:4);
 
 end
 
@@ -35,7 +39,7 @@ function [A] = deltawt(A)
 
 rew = 1:5;
 for j = 1:length(rew)
-    m = find(A.reward==rew(j) & A.optout==1 & A.vios==0);
+    m = find(A.reward==rew(j) & A.catch & A.vios==0);
     A.wait_time(m) = (A.wait_time(m)-mean(A.wait_time(m), 'omitnan'))./...
         std(A.wait_time(m), 'omitnan');
 end

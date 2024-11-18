@@ -1,4 +1,9 @@
-function [expert, naive, infModel, divModel] = processBehaviorData(behaviorPath)
+function processBehaviorData(behaviorPath, savePath)
+% Process behavior data to visualize using plotFigure1 and plotFigure2
+
+%INPUTS: 
+%   behaviorPath = path to behavior data from the repository
+%   savePath = path where you want to save the outputs of this function
 
 load(strcat(behaviorPath, 'ratList.mat')); %list of rat data to use for behavior plots and model simulations
 nrats = length(ratList);
@@ -24,7 +29,7 @@ for rr = 1:nrats
     div.wait_time = divnorm_wt;
 
     % simulate inference agent
-    inf_wt = GenerateSynthData_Bayes([0.23 0.3 0.2 .13 1], E.A, 'logn', 1, 8);
+    inf_wt = GenerateSynthData_Bayes([0.23 0.3 0.2 .13], E.A, 'logn', 1, 8);
     inf = E.A;
     inf.wait_time = inf_wt;
 
@@ -46,13 +51,9 @@ for rr = 1:nrats
         infModel.mtoh(rr,:), ~, ~, ~] =...
         block_dynamics_wt_binTrials(inf, twin, binSize, smoothfactor);
 
-    [divNorm.ltom(rr,:), divNorm.htom(rr,:), divNorm.mtol(rr,:), ...
-        divNorm.mtoh(rr,:), ~, ~, ~] =...
+    [divModel.ltom(rr,:), divModel.htom(rr,:), divModel.mtol(rr,:), ...
+        divModel.mtoh(rr,:), ~, ~, ~] =...
         block_dynamics_wt_binTrials(div, twin, binSize, smoothfactor);
-
-    % de-trend wait times
-    E.A = detrendwt(E.A);
-    N.A = detrendwt(N.A);
     
     %split post low and post high mixed blocks into quartiles
     [expert.postLow(rr,:), expert.postHigh(rr,:), expert.postLow_q1(rr,:),  ...
@@ -79,5 +80,8 @@ naive.hi = cell2mat(arrayfun(@(x) hiN(x).wt, 1:nrats, 'uniformoutput', false)');
 naive.lo = cell2mat(arrayfun(@(x) loN(x).wt, 1:nrats, 'uniformoutput', false)');
 naive.mix =  cell2mat(arrayfun(@(x) mixN(x).wt, 1:nrats, 'uniformoutput', false)');
 
-
+save([savePath 'expert.mat'], 'expert')
+save([savePath 'naive.mat'], 'naive')
+save([savePath 'infModel.mat'], 'infModel')
+save([savePath 'divModel.mat'], 'divModel')
 
