@@ -16,7 +16,6 @@ function [blockbins, all] = bin_blocks(A, block, numbins, transitiontype, idx, e
 %% 2. all combines all bins, e.g., if you just want to condition on
 %% previous block type
 
-rew = convertreward(A.reward);
 for j = 1:numbins
     blockbins{j} = [];
 end
@@ -29,9 +28,9 @@ mintnum = 40; %if there are fewer than this number of trials in the block,
 
 if exclude_congr==1
     if transitiontype==-2
-        incongr = find(A.block==1 & rew>3); %post-low block.
+        incongr = find(A.block==1 & A.reward>3); %post-low block.
     elseif transitiontype==-1
-        incongr = find(A.block==1 & rew<3); %post-high block.
+        incongr = find(A.block==1 & A.reward<3); %post-high block.
     end
 end
 
