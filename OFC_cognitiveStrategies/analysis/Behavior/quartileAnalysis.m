@@ -10,8 +10,8 @@ data.reward = convertreward(data.reward);
 
 %get trial indices for mixed blocks split into quartiles following low
 %and high blocks.
-quartiles.postLow = bin_blocks(data, 1, 4, -2, 1:length(data.wait_time), 0); %quartiles are the same for expert, inference model, and divisive normalization model
-quartiles.postHigh = bin_blocks(data, 1, 4, -1, 1:length(data.wait_time), 0);
+quartiles.postLow = bin_blocks(data, 1, 4, -2, 1:length(data.wait_time), 1); %from first incongruent trial
+quartiles.postHigh = bin_blocks(data, 1, 4, -1, 1:length(data.wait_time), 1);
 
 %compute wait-times by reward for the first quartile following low and high blocks
 use = arrayfun(@(x) find(data.reward == x & data.catch & data.optout ...
@@ -24,6 +24,9 @@ postHigh_q1 = arrayfun(@(x) mean(data.wait_time(intersect(quartiles.postHigh{1},
 
 % compute average z-scored wait-times for each quartile in mixed blocks
 % following low and high blocks
+quartiles.postLow = bin_blocks(data, 1, 4, -2, 1:length(data.wait_time), 0); %include congruent trials
+quartiles.postHigh = bin_blocks(data, 1, 4, -1, 1:length(data.wait_time), 0);
+
 data = detrendwt(data);
 data = deltawt(data); %normalize wait times by reward to combine over rewards
 
