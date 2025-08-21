@@ -1,23 +1,23 @@
-function PlotFigure1(datadir, codedir)
+function PlotFigure1(datadir) %, codedir
 %PlotFigure1 - Plots Figure 1. Must be run after ProcessData_Figure1.
 % INPUTS:
 %   datadir - Local directory where ProcessData_Figure1.mat was saved after running ProcessData_Figure1
 %   codedir - Local directory where code (e.g., published/EstrousRPE/) was saved
 
-%% Set up paths
-s = pathsep;
-pathStr = [s, path, s];
-onPath  = contains(pathStr,...
-    codedir, 'IgnoreCase', ispc);
-if ~onPath % only add code dir to path if it isn't already
-    addpath(genpath(codedir))
-end
+% %% Set up paths
+% s = pathsep;
+% pathStr = [s, path, s];
+% onPath  = contains(pathStr,...
+%     codedir, 'IgnoreCase', ispc);
+% if ~onPath % only add code dir to path if it already isn't
+%     addpath(genpath(codedir))
+% end
 
 %% Load data
 load([datadir, 'ProcessData_Figure1'],...
     'f_ratlist', 'm_ratlist', 'ITIbyBlock', 'beh_sens_staged',...
     'newfrats', 'beh_sens_males', 'newmrats', 'Latencydynamics',...
-    'delta_rats', 'E2_rats', 'x_good', 'y_good', 'stages_good');
+    'delta_rats', 'E2_rats');
 
 %% Create variables
 cycle = {'Proestrus', 'Diestrus'};
@@ -262,7 +262,7 @@ for e = 1:length(cycle)
     set(gca, 'TickDir', 'out'); box off
     xlabel('Trials from block switch');
     ylabel('Init. time (s, detrended)'); %removed z-score
-
+    
     xlim([-twin/3 twin])
     yticks(-2:1:2)
     axis square
@@ -353,54 +353,30 @@ disp(['j effect size p vs d t-1: ' num2str(effsize_t_1)])
 title('j')
 
 %--------------------------------------------------------------------------
-%1k.  Coefficients for one trial back for proestrus - diestrus stages 
+%1l.  Coefficients for one trial back for proestrus and diestrus stages as
+%a function of hormonal modulation (proestrus - diestrus delta initiation times)
 %--------------------------------------------------------------------------
 nexttile
-pro_betas = ITIbyBlock.(cycle{1}).betas_detrended(beh_sens_staged, :);
-di_betas = ITIbyBlock.(cycle{2}).betas_detrended(beh_sens_staged, :);
-stageeffect_beta_Rt_1 = di_betas(:, 1) - pro_betas(:, 1);
-these_binedges = [-2.05:0.1:-0.05 0.05:0.1:7.05];
-histogram(stageeffect_beta_Rt_1, 'FaceColor', 'k', binedges = these_binedges); hold on
-xline(0, '--k', linewidth=0.75)
-xline(median(stageeffect_beta_Rt_1, 'omitnan'), '--r', 'LineWidth', 0.75)
-xlim([-1.5 1.5]);
-xticks(-2:1:2)
-xlabel({'Diestrus - proestrus beta Rt-1'})
-ylabel('# rats')
-ylim([0 26])
-yticks(0:10:25)
-set(gca, 'TickDir', 'out'); box off
-pval_sr_ProDi_delta = signrank(di_betas(:, 1), pro_betas(:, 1));
-title(['k Pro vs Di beta Rt-1 sign rank p=' num2str(pval_sr_ProDi_delta)])
+hormonal_modulation = pro_deltas(beh_sens_staged) - di_deltas(beh_sens_staged);
+nan_idx = isnan(hormonal_modulation') | isnan(stageeffect_beta_Rt_1);
+x = hormonal_modulation(~nan_idx);
+y = stageeffect_beta_Rt_1(~nan_idx);
+p = polyfit(x,y,1); 
+yi = polyval(p,x); 
+plot(x, y, '.', color='#9E9D9D', markersize = 15); hold on
+plot(x,yi,'--k',linewidth=0.5)
+xlabel('/Delta Initiation time (proestrus - diestrus)'); 
+ylabel('Rt-1 (diestrus - proestrus)')
+ylim([-1.2 1.5])
+yticks(-1:1:2)
+xlim([-2.5 4.5])
+xticks(-4:2:6)
+[R,P] = corrcoef(x', y);
+title(['l R=' num2str(R(2,1)) ', p=' num2str(P(2,1))])
 grid off; set(gca, 'TickDir', 'out'); box off; axis square
 
-% --------------------------------------------------------------------------
-% 1l. Change in initition time (low-high) as a function of estradiol (no
-% estrus)
-% --------------------------------------------------------------------------
-nexttile
-plot(x_good, y_good, '.k'); hold on
-lsline
-plot(x_good(strcmp(stages_good, 'Proestrus')),...
-    y_good(strcmp(stages_good, 'Proestrus')), '.',...
-    Color='#E87003', MarkerSize=20); hold on
-plot(x_good(strcmp(stages_good, 'Estrus')),...
-    y_good(strcmp(stages_good, 'Estrus')), '.',...
-    Color='#DD965B', MarkerSize=20); hold on
-plot(x_good(strcmp(stages_good, 'Metestrus')),...
-    y_good(strcmp(stages_good, 'Metestrus')), '.',...
-    Color='#A495E5', MarkerSize=20); hold on
-plot(x_good(strcmp(stages_good, 'Diestrus')),...
-    y_good(strcmp(stages_good, 'Diestrus')), '.',...
-    Color='#7358C6', MarkerSize=20); hold on
-grid off; axis square; set(gca, 'TickDir', 'out'); box off
-[R,P] = corrcoef(x_good, y_good);
-subtitle(['R=' num2str(R(2,1)) ', p=' num2str(P(2,1))])
-title(['l # sessions =' num2str(length(y_good))])
-
 %--------------------------------------------------------------------------
-%1m. Proestrus - diestrus change in initiation time (low-high) as a 
-% function of changes in estradiol
+%1m. Hormonal modulation as a function of changes in estradiol
 %--------------------------------------------------------------------------
 nexttile
 x = E2_rats(:, 1) - E2_rats(:, 2); 
@@ -419,6 +395,9 @@ yticks(-2:1:4)
 xticks(15:20:55)
 grid off; axis square; set(gca, 'TickDir', 'out'); box off
 
-
+% %--------------------------------------------------------------------------
+% %1n. Behavior as a function of estradiol
+% %--------------------------------------------------------------------------
+% hormmod = delta_rats(:, 1) - delta_rats(:, 2);
 
 end

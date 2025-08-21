@@ -9,7 +9,7 @@ s = pathsep;
 pathStr = [s, path, s];
 onPath  = contains(pathStr,...
     codedir, 'IgnoreCase', ispc);
-if ~onPath % only add code dir to path if it already isn't
+if ~onPath % only add code dir to path if it isn't already
     addpath(genpath(codedir))
 end
 
@@ -106,7 +106,7 @@ nexttile
 histogram(Rcorr_byrat, facecolor='k', binwidth=0.05)
 xlim([-0.4 0.4])
 xline(0, '--k')
-xline(median(Rcorr_byrat), '--r') %%%ADD MAKE MEDIAN%%%
+xline(median(Rcorr_byrat), '--r')
 title(['N=' num2str(length(NAcc_ratlist))])
 subtitle(['p=' num2str(P_byrat(2:end)')])
 axis square; grid off

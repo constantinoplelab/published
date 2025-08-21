@@ -15,7 +15,7 @@ for rat = 1:length(ratlist)
 
     %load bdata and pdata
     bdata = Bstruct.(ratname).('CPIn'); %get offer cue behavioral data
-    pstruct = Pstruct.(ratname);
+    pstruct = Pstruct.(ratname).('CPIn');
 
     %%make reward history matrix
     %set up time vector and time points

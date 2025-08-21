@@ -1,22 +1,22 @@
-function PlotFigure3(datadir, codedir)
+function PlotFigure3(datadir) %, codedir
 %PlotFigure3 - Plots Figure 3. 
 % INPUTS:
 %   datadir - Local directory where ProcessData_Figure3.mat was saved after running ProcessData_Figure3
 %   codedir - Local directory where code (e.g., published/EstrousRPE/) was saved
-
-%% Set up paths
-s = pathsep;
-pathStr = [s, path, s];
-onPath  = contains(pathStr,...
-    codedir, 'IgnoreCase', ispc);
-if ~onPath % only add code dir to path if it isn't already
-    addpath(genpath(codedir))
-end
+% 
+% %% Set up paths
+% s = pathsep;
+% pathStr = [s, path, s];
+% onPath  = contains(pathStr,...
+%     codedir, 'IgnoreCase', ispc);
+% if ~onPath % only add code dir to path if it already isn't
+%     addpath(genpath(codedir))
+% end
 
 %% Load data
 load([datadir, 'ProcessData_Figure3'],...
     'ratTrial', 'LatOpt', 'Kappa_trials', 'Lat_trials', 'betas_model',...
-    'Alignments', 'NAcc_ratlist', 'EncodingWindowAnalysis',...
+    'algn_vec', 'NAcc_ratlist', 'EncodingWindowAnalysis',...
     'pro_DA_binned', 'di_DA_binned', 'RPEbins', 'LatOpts', 'RPEs',...
     'RPEs_alphachange', 'delta', 'isblockchange', 'ltom', 'htom',...
     'mtol', 'mtoh', 'betas_model_3j', 'betas_RPE',...
@@ -134,22 +134,22 @@ figure;
 set(gcf, 'Color', [1 1 1], 'Units', 'Inches', 'Position', [0, 0, 17, 9],...
     'PaperUnits', 'Inches', 'PaperSize', [9, 5], 'renderer','painters')   
 %Fit model to pooled sessions across rats and use that RPE
-for a  = 1:length(Alignments)
+for aa  = 1:length(algn_vec)
     clear l
-    subplot(1,length(Alignments),a)
-    event = Alignments{a};
-    xtimes = EncodingWindowAnalysis.('G008').(event).Times;
+    subplot(1,length(algn_vec),aa)
+    algn = algn_vec{aa};
+    xtimes = EncodingWindowAnalysis.('G008').(algn).Times;
     ybetas = NaN(length(NAcc_ratlist), 150);
     for rat = 1:length(NAcc_ratlist)
-        ybetas(rat, :) = EncodingWindowAnalysis.(NAcc_ratlist{rat}).(event).Regression.RPE.betaMat(2,:); %first row is with the constant as the predictor
+        ybetas(rat, :) = EncodingWindowAnalysis.(NAcc_ratlist{rat}).(algn).Regression.RPE.betaMat(2,:); %first row is with the constant as the predictor
     end
     l(1) = shadedErrorBar(xtimes, mean(ybetas, 'omitnan'), sem(ybetas),...
-        'lineProps', {'-', 'Color', 'k', 'LineWidth', 0.5});
+        'lineProps', {'-', 'Color', 'k', 'LineWidth', 0.5}); %TRY WITH MEDIAN
     arrayfun(@(line) arrayfun(@(e) set(e, LineStyle='none'), line.edge), l)
     xlabel('Time (s)')
     ylabel('Regression coefficient')
     axis square; grid off; set(gca, 'TickDir', 'out'); box off
-    title(['d ' event])
+    title(['d ' algn])
     ylim([-1 3.5])
     yticks(-1:1:3)
     xlim([-0.5 1.25])
@@ -158,7 +158,7 @@ end
 
 %--------------------------------------------------------------------------
 %3e. DA AUC at offer cue as a function of model-predicted (using alpha fit to the 
-% 10 trials) RPE by stage
+% 10 trials) RPE
 %--------------------------------------------------------------------------
 figure;
 set(gcf, 'Color', [1 1 1], 'Units', 'Inches', 'Position', [0, 0, 17, 9],...
@@ -220,8 +220,7 @@ xlabel('Proestrus - diestrus AUC of DA at offer cue')
 set(gca, 'TickDir', 'out'); box off; axis square
 
 %--------------------------------------------------------------------------
-%3g-j, l-m. Predicted block sensitivity and regression with added RPE to
-% larger rewards
+%3g-j, l-m. Predicted block sensitivity and regression with added RPE to larger rewards
 %--------------------------------------------------------------------------
 num2plot = 200;
 twin = 30;

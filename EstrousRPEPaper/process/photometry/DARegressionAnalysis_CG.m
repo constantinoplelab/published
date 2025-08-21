@@ -1,5 +1,5 @@
 function EncodingWindowAnalysis = DARegressionAnalysis_CG(ratlist,...
-    resample_freq, rebin_size, algn_vec, BestFits, Bstruct, Pstruct)
+    times_resampled, rebin_size, Alignments, BestFits, Bstruct, Pstruct)
 
 RPEs_over_rats = cell(length(ratlist), 1);
 RPEs_last = cell(length(ratlist), 1);
@@ -20,13 +20,13 @@ for rat = 1:length(ratlist)
     ratname = ratlist{rat};
     disp(['DA regression:' ratname])
 
-    for aa  = 1:length(algn_vec)
+    for a  = 1:length(Alignments)
 
-        algn = algn_vec{aa};
+        event = Alignments{a};
 
         %subset to this event
-        bdata = Bstruct.(ratname).(algn);
-        pdata = Pstruct.(ratname).(algn);
+        bdata = Bstruct.(ratname).(event);
+        pdata = Pstruct.(ratname).(event);
 
         %get RPEs
         ratRPEs = RPEs_over_rats{rat};
@@ -66,14 +66,14 @@ for rat = 1:length(ratlist)
 
         %subset
         %Model
-        RPEs = RPEphot; %(logical(BLphot==1))
-        MdlDates = MdlDatesphot; %(logical(BLphot==1))
-        MdlTrialNums = TrialNumsphot; %(logical(BLphot==1))
-        BlockPos = BlockPosphot; %(logical(BLphot==1))
+        RPEs = RPEphot; 
+        MdlDates = MdlDatesphot; 
+        MdlTrialNums = TrialNumsphot;
+        BlockPos = BlockPosphot;
         %Photometry
-        bdata = bdataMdl; %((logical(bdataMdl.Block==1)),:)
+        bdata = bdataMdl;
         bdataDates = datetime(bdata.UniqueDay, 'InputFormat','uuuuMMdd');
-        pdata = pdataMdl; %((logical(bdataMdl.Block==1)),:)
+        pdata = pdataMdl;
 
         %only keep mixed trials from model and photometry that match in trial number
         RPE_paireddown = NaN(size(bdata, 1), 1);
@@ -109,36 +109,36 @@ for rat = 1:length(ratlist)
 
         %subset to last trials
         RPEs_thesetrials = RPE_paireddown(ismember(BlockPos_paireddown, lasttrialnums));
-        da_mat = pdata(ismember(BlockPos_paireddown, lasttrialnums), :);
+        DAMat = pdata(ismember(BlockPos_paireddown, lasttrialnums), :);
         bstruct_mat = bdata(ismember(BlockPos_paireddown, lasttrialnums), :);
         bstruct_mat.RPE = RPEs_thesetrials./max(abs(RPEs_thesetrials));
 
-        [DAMat, times_resampled] = resample_da_data(da_mat, resample_freq);
+        % [DAMat, times_resampled] = resample_da_data(da_mat, resample_freq);
 
         Regression = regress_da(DAMat, bstruct_mat); %times_resampled
 
         DA_Rebinned =...
             bin_da_by_var(DAMat, Regression, bstruct_mat, rebin_size);
 
-        EncodingWindowAnalysis.(algn).DAMat = DAMat;
-        EncodingWindowAnalysis.(algn).Times = times_resampled(1:end-1);
-        EncodingWindowAnalysis.(algn).Regression = Regression;
-        EncodingWindowAnalysis.(algn).RebinnedDA = DA_Rebinned;
+        EncodingWindowAnalysis.(event).DAMat = DAMat;
+        EncodingWindowAnalysis.(event).Times = times_resampled(1:end-1);
+        EncodingWindowAnalysis.(event).Regression = Regression;
+        EncodingWindowAnalysis.(event).RebinnedDA = DA_Rebinned;
 
     end
 
 
 end
 
-function [DAMat, times_resample] = resample_da_data(da_mat, resample_freq)
-    times = linspace(-5, 10, size(da_mat,2));
-    times_resample = -5:resample_freq:10;
-    resample_indx = discretize(times, times_resample);
-
-    DAMat = arrayfun(@(ii) mean(da_mat(:, resample_indx == ii), 2, 'omitnan'),...
-        unique(resample_indx), 'UniformOutput', 0);
-    DAMat = cell2mat(DAMat);
-end
+% function [DAMat, times_resample] = resample_da_data(da_mat, resample_freq)
+%     times = linspace(-5, 10, size(da_mat,2));
+%     times_resample = -5:resample_freq:10;
+%     resample_indx = discretize(times, times_resample);
+% 
+%     DAMat = arrayfun(@(ii) mean(da_mat(:, resample_indx == ii), 2, 'omitnan'),...
+%         unique(resample_indx), 'UniformOutput', 0);
+%     DAMat = cell2mat(DAMat);
+% end
 
 function EncodingWindow =...
         regress_da(da_mat_resamp, bstruct_all) %times_resampled
@@ -155,9 +155,6 @@ function EncodingWindow =...
 
         EncodingWindow.(var).pvalMat(:,ii) = stats.p;
     end
-
-    % EncodingWindow.(var).betaMat(:, times_resampled>2.5) = nan;
-    % EncodingWindow.(var).betaMat(:, times_resampled<0) = nan;
 
     [~, EncodingWindow.(var).I] =...
         max(abs(EncodingWindow.(var).betaMat(2,:)));

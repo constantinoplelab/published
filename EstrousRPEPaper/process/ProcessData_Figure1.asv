@@ -1,20 +1,21 @@
-function ProcessData_Figure1(datadir, savedir, codedir)
+function ProcessData_Figure1(datadir, savedir) %, codedir
 %ProcessData_Figure1 - Process raw data saved under datadir such that it can be plotted by PlotFigure1.
 % INPUTS:
 %   datadir - Local directory where 'Golden_Nature/RawData_Figure1.mat' from Zenodo was saved
 %   codedir - Local directory where code (e.g., published/EstrousRPE/) was saved
 %   savedir - Local directory where you would like the outputs to be saved
 
-%% Set up paths
-s = pathsep;
-pathStr = [s, path, s];
-onPath  = contains(pathStr,...
-    codedir, 'IgnoreCase', ispc);
-if ~onPath % only add code dir to path if it isn't already
-    addpath(genpath(codedir))
-end
+% %% Set up paths
+% s = pathsep;
+% pathStr = [s, path, s];
+% onPath  = contains(pathStr,...
+%     codedir, 'IgnoreCase', ispc);
+% if ~onPath % only add code dir to path if it already isn't
+%     addpath(genpath(codedir))
+% end
 
 %% Load raw data
+%Rat lists
 load([datadir, 'RawData_Figure1'], 'f_ratlist', 'm_ratlist',...
     'RatBehaviorData', 'SerumTable', 'SerumBehData');
 
@@ -66,14 +67,13 @@ ratlist = {'G125','G127','G128','G131','G133','G134','G135','G136',...
 
 % initiation times and estradiol levels from sessions with serum draws
 % across all stages
-[x_good, y_good, stages_good] =... 
+[xbin, x_good, ybin, ybiner, y_good] =...
     Estradiol_vs_DeltaInit(SerumTable, SerumBehData); 
-
 
 %% Save processed data
 save([savedir 'ProcessData_Figure1'], 'f_ratlist', 'm_ratlist',...
     'newfrats', 'beh_sens_staged', 'newmrats', 'beh_sens_males',...
     'ITIbyBlock', 'Latencydynamics', 'delta_rats', 'E2_rats',...
-    'x_good', 'y_good', 'stages_good', '-v7.3')
+    'xbin', 'x_good', 'ybin', 'ybiner', 'y_good', '-v7.3')
 
 end

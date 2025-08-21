@@ -102,11 +102,34 @@ for rat = 1:frats
             react(j) = mean(stageS.pd{j}.ReactionTime, 'omitnan');
             %volume consumed
             vol(j) = sum(stageS.pd{j}.RewardAmount(stageS.pd{j}.hits));
-            sessstart = S.pd{j}.SessStart;
-            sessend = S.pd{j}.SessEnd;
-            duration(j) = sessend - sessstart;
-            numtrialscorrected(j) = numtrials(j)./duration(j);
-            volumecorrected(j) = vol(j)./duration(j);          
+
+            
+            try
+                RewardRateStruct = get_data_triallength(ratname,...
+                    datestr(stageS.pd{j}.SessionDate, 'YYYY-mm-DD'));
+            catch
+                disp([cycle{e} ' sess #' num2str(j) ': no RewardRateStruct, skip'])
+            end
+            if exist('RewardRateStruct')
+                to_rmv = cellfun(@(x) isempty(x), RewardRateStruct.pd);
+                RewardRateStruct.pd = RewardRateStruct.pd(~to_rmv);
+                if (RewardRateStruct.pd{1}.TrialEnd(end) -...
+                        RewardRateStruct.pd{1}.TrialStart(1)) < 10800 %exclude sessions longer than 3 hours
+                    duration(j) = RewardRateStruct.pd{1}.TrialEnd(end) -...
+                        RewardRateStruct.pd{1}.TrialStart(1);
+                    numtrialscorrected(j) = numtrials(j)./duration(j);
+                    volumecorrected(j) = vol(j)./duration(j);
+                else
+                    duration(j) = NaN;
+                    numtrialscorrected(j) = NaN;
+                    volumecorrected(j) = NaN;
+                end
+            else
+                disp([cycle{e} ' sess #' num2str(j) ': session is too long, skip'])
+                duration(j) = NaN;
+                numtrialscorrected(j) = NaN;
+                volumecorrected(j) = NaN;
+            end
         end
         latmat = cell2mat(lat_cell);
         lat_detrended_mat = cell2mat(lat_detrended_cell);

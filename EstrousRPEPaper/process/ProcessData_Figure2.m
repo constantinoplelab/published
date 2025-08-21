@@ -1,4 +1,4 @@
-function ProcessData_Figure2(datadir, codedir, savedir)
+function ProcessData_Figure2(datadir, savedir, codedir)
 %ProcessData_Figure2 - Process raw data saved under datadir such that it can be plotted by PlotFigure2.
 % INPUTS:
 %   datadir - Local directory where 'Golden_Nature/RawData_Figure2.mat' from Zenodo was saved
@@ -10,13 +10,16 @@ s = pathsep;
 pathStr = [s, path, s];
 onPath  = contains(pathStr,...
     codedir, 'IgnoreCase', ispc);
-if ~onPath % only add code dir to path if it already isn't
+if ~onPath % only add code dir to path if it isn't already
     addpath(genpath(codedir))
 end
 
 %% Load raw data
 load([datadir, 'RawData_Figure2'],...
-    'NAcc_ratlist', 'Pstruct', 'Bstruct'); % Post-violation trials were excluded
+    'NAcc_ratlist', 'Pstruct', 'Bstruct','PstructSerum', ...
+    'BstructSerum'); % Post-violation trials were excluded
+load([datadir, 'RawData_Figure1'],...
+    'SerumTable'); % Post-violation trials were excluded
 
 %% Process data
 %Set general variables
@@ -79,7 +82,13 @@ thirdrew_arg = 0;
     NAcc_ratlist, Pstruct, Bstruct, Stages);
 
 %--------------------------------------------------------------------------
-%2i. Response to offer cue for all trials in mixed blocks, separated by reward volume and
+%2i. Response to offer cue as a function of estradiol
+%--------------------------------------------------------------------------
+[delta_good, E2_good, stages] =...
+    SerumEstradiol_vs_DARPE(SerumTable, PstructSerum, BstructSerum);
+
+%--------------------------------------------------------------------------
+%2j. Response to offer cue for all trials in mixed blocks, separated by reward volume and
 % stage group for example rat, G037, baseline-corrected using the 0.05 to
 % 0 s before offer cue.
 %--------------------------------------------------------------------------
@@ -90,7 +99,7 @@ rewards = [1 2 3 4 5]; %standardized, linearized version of reward options
     Pstruct.(ratname), block, Alignments, rewards, Stages, window);
 
 %--------------------------------------------------------------------------
-%2j. Population average response to each reward volume, separated by reward
+%2k. Population average response to each reward volume, separated by reward
 % block, min-max normalized, baseline-corrected using the 0.05 to 0 s
 % before offer cue, *p<0.05.
 %--------------------------------------------------------------------------
@@ -103,6 +112,7 @@ save([savedir 'ProcessData_Figure2'],...
     'reward_da_rats', 'T', 'sorted_data_16', 'high_rats', 'low_rats',...
     'high_stages_rat', 'low_stages_rat', 'err_high_stages_rat',...
     'err_low_stages_rat', 'stageffect', 'reward_da_stages_rat',...
-    'reward_da_err_stages_rat', 'AUC_byrat');
+    'reward_da_err_stages_rat', 'AUC_byrat', ...
+    'delta_good', 'E2_good', 'stages');
 
 end

@@ -9,8 +9,8 @@ for rat = 1:length(ratlist)
     ratname = ratlist{rat};
     disp(ratname)
 
-    [high, low, T] = hilo_all_events({ratname},...
-        Bstruct.(ratname), Pstruct.(ratname), thirdrew_arg);
+    [high, low] = hilo_one_event(Bstruct.(ratname), ...
+        Pstruct.(ratname), thirdrew_arg, 'CPIn');
 
     high_rats{rat} = high;
     low_rats{rat} = low;

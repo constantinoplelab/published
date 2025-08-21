@@ -1,4 +1,4 @@
-function ProcessData_Figure3(datadir, codedir, savedir)
+function ProcessData_Figure3(datadir, savedir, codedir)
 %ProcessData_Figure3 - Process raw data saved under datadir such that it can be plotted by PlotFigure3.
 % INPUTS:
 %   datadir - Local directory where 'Golden_Nature/RawData_Figure3.mat' from Zenodo was saved
@@ -10,14 +10,15 @@ s = pathsep;
 pathStr = [s, path, s];
 onPath  = contains(pathStr,...
     codedir, 'IgnoreCase', ispc);
-if ~onPath % only add code dir to path if it already isn't
+if ~onPath % only add code dir to path if it isn't already
     addpath(genpath(codedir))
 end
 
 %% Load raw data
 load([datadir, 'RawData_Figure3'], 'ratTrial',...
-    'BestFits', 'Pstruct', 'Bstruct', 'PstructCPIn',...
-    'Proestrus_last', 'Diestrus_last', 'pro_ratList', 'di_ratList')
+    'BestFits', 'Pstruct', 'Bstruct', 'times_resampled', 'PstructCPIn',...
+    'Proestrus_last', 'Estrus_last', 'Metestrus_last', 'Diestrus_last',...
+    'pro_ratList', 'est_ratList', 'met_ratList', 'di_ratList')
 
 %% Process data
 %Set general variables
@@ -67,11 +68,11 @@ ratModel.ITI = LatOpt;
 % over rats. Includes 0.5 s baseline before CPIn.
 %--------------------------------------------------------------------------
 %Fit model to pooled sessions across rats and use that RPE
-algn_vec = {'CPOn', 'CPIn', 'SideOn', 'SideOff', 'Reward', 'OptOut'};
+Alignments = {'CPOn', 'CPIn', 'SideOn', 'SideOff', 'Reward', 'OptOut'};
 EncodingWindowAnalysis = [];
 for rat = 1:length(NAcc_ratlist)
     EncodingWindows = DARegressionAnalysis_CG(NAcc_ratlist(rat),...
-        0.1, 0.1, algn_vec, BestFits, Bstruct, Pstruct);
+        times_resampled, 0.1, Alignments, BestFits, Bstruct, Pstruct);
     EncodingWindowAnalysis.(NAcc_ratlist{rat}) = EncodingWindows;
 end
 
@@ -79,12 +80,14 @@ end
 %3e. DA AUC at offer cue as a function of model-predicted (using alpha fit to the
 % 10 trials) RPE
 %--------------------------------------------------------------------------
-numbins = 7;
+numbins = 6;
 window = 0.5; %AUC window
 event = 'CPIn'; %align to reward offer cue
-[pro_DA_binned, di_DA_binned, RPEbins] = DA_by_RPE_estrous(NAcc_ratlist(1:end-1),...
-    PstructCPIn, Bstruct, Proestrus_last, Diestrus_last,...
-    pro_ratList, di_ratList, numbins, window, event); %all blocks, last 20 trials, equally spaced bins
+[pro_DA_binned, ~, ~, di_DA_binned,...
+    RPEbins] = DA_by_RPE_estrous(NAcc_ratlist,...
+    PstructCPIn, Bstruct, Proestrus_last, Estrus_last, Metestrus_last,...
+    Diestrus_last, pro_ratList, est_ratList, met_ratList, di_ratList,...
+    numbins, window, event);
 
 %--------------------------------------------------------------------------
 %3f-j, l-m. Predicted block sensitivity and regression with added RPE to larger rewards
@@ -178,7 +181,7 @@ auc2 = 0.5; %end of AUC window
 %% Save processed data
 save([savedir 'ProcessData_Figure3'],...
     'ratTrial', 'LatOpt', 'Kappa_trials', 'Lat_trials', 'betas_model',...
-    'algn_vec', 'NAcc_ratlist', 'EncodingWindowAnalysis',...
+    'Alignments', 'NAcc_ratlist', 'EncodingWindowAnalysis',...
     'pro_DA_binned', 'di_DA_binned', 'RPEbins', 'LatOpts', 'RPEs',...
     'RPEs_alphachange', 'delta', 'isblockchange', 'ltom', 'htom',...
     'mtol', 'mtoh', 'betas_model_3j', 'betas_RPE',...

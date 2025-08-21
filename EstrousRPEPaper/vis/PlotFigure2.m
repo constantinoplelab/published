@@ -9,7 +9,7 @@ s = pathsep;
 pathStr = [s, path, s];
 onPath  = contains(pathStr,...
     codedir, 'IgnoreCase', ispc);
-if ~onPath % only add code dir to path if it already isn't
+if ~onPath % only add code dir to path if it isn't already
     addpath(genpath(codedir))
 end
 
@@ -20,7 +20,7 @@ load([datadir, 'ProcessData_Figure2'],...
     'T', 'sorted_data_16', 'high_rats', 'low_rats', 'high_stages_rat',...
     'low_stages_rat', 'err_high_stages_rat', 'err_low_stages_rat',...
     'stageffect', 'reward_da_stages_rat', 'reward_da_err_stages_rat',...
-    'AUC_byrat');
+    'AUC_byrat', 'delta_good', 'E2_good', 'stages');
 
 %% PLOT %%
 figure;
@@ -116,8 +116,8 @@ lo_event = NaN(length(NAcc_ratlist), size(T, 2));
 for rat = 1:length(NAcc_ratlist)
     hi = high_rats{rat};
     lo = low_rats{rat};
-    hi_event(rat, :) = hi{1};
-    lo_event(rat, :) = lo{1};
+    hi_event(rat, :) = hi;
+    lo_event(rat, :) = lo;
 end
 mean_hi_event = mean(hi_event, 'omitnan');
 mean_lo_event = mean(lo_event, 'omitnan');
@@ -136,14 +136,13 @@ err_lo(isnan(err_lo)) = 0;
 h_lo = fill([T fliplr(T)], err_lo, 'b', 'LineStyle', 'none');
 set(h_lo, 'facealpha', 0.25);
 xline(0, '--k');
-set(gcf, 'Color', [1 1 1]);
 xlim([-0.5 1.25]);
 xticks(-1:0.5:1)
 yticks(-1:1:1)
 ylim([-1.3 1])
 xlabel('Time from offer cue (s)');
-set(gca, 'TickDir', 'out'); box off;
-axis square
+set(gcf, 'Color', [1 1 1]);
+set(gca, 'TickDir', 'out'); box off; axis square
 title(['f Mean over rats n = ', num2str(length(NAcc_ratlist))]);
 
 %--------------------------------------------------------------------------
@@ -202,15 +201,63 @@ ylabel('# rats')
 yticks(0:1:2)
 xline(0, '--k', 'LineWidth', 0.5)
 set(gcf, 'Color', [1 1 1]);
-set(gca, 'TickDir', 'out'); box off;
-axis square
+set(gca, 'TickDir', 'out'); box off; axis square
 xlim([-0.16 0.16])
 ylim([0 2.1])
 pval_stageeffect = signrank(stageffect);
 title(['h p=' num2str(pval_stageeffect)])
 
 %--------------------------------------------------------------------------
-%2i. Response to offer cue for all trials in mixed blocks, separated by reward volume and
+%2i. Response to offer cue as a function of estradiol
+%--------------------------------------------------------------------------
+nexttile
+[R,P] = corrcoef(E2_good, delta_good);
+plot(E2_good, delta_good, '.k'); hold on
+lsline
+plts = NaN(4,1);
+plts(1) = plot(E2_good(strcmp(stages, 'Proestrus')),...
+    delta_good(strcmp(stages, 'Proestrus')), '.',...
+    Color='#E87003', MarkerSize=20); hold on
+plts(2) = plot(E2_good(strcmp(stages, 'Estrus')),...
+    delta_good(strcmp(stages, 'Estrus')), '.',...
+    Color='#DD965B', MarkerSize=20); hold on
+plts(3) = plot(E2_good(strcmp(stages, 'Metestrus')),...
+    delta_good(strcmp(stages, 'Metestrus')), '.',...
+    Color='#A495E5', MarkerSize=20); hold on
+plts(4) = plot(E2_good(strcmp(stages, 'Diestrus')),...
+    delta_good(strcmp(stages, 'Diestrus')), '.',...
+    Color='#7358C6', MarkerSize=20); hold on
+legend(plts, {'Proestrus', 'Estrus', 'Metestrus', 'Diestrus'})
+ylim([0 0.8])
+yticks(0:0.4:0.8)
+xlabel('Estradiol (pg/ml)')
+ylabel('\Delta AUC') %
+title(['i R=' num2str(R(2,1)) ', p=' num2str(P(2,1))])
+grid off; axis square; set(gca, 'TickDir', 'out'); box off
+
+% xbin = linspace(min(E2_good), max(E2_good), 9);
+% ybin = nan(1, length(xbin));
+% ybiner = ybin;
+% for j = 2:length(ybin)
+%     these = find(E2_good>xbin(j-1) & E2_good<=xbin(j));
+%     ybin(j) = mean(delta_good(these));
+%     ybiner(j) = std(delta_good(these))./sqrt(length(these));
+% end
+% 
+% centeredx = xbin-((xbin(2)-xbin(1))/2); %x-values centered for each bin
+% subplot(1,2,2);
+% l = shadedErrorBar(centeredx, ybin, ybiner, 'lineprops', '-k'); 
+% arrayfun(@(line) arrayfun(@(e) set(e, LineStyle='none'), line.edge), l)
+% xlabel('Estradiol (pg/ml)');
+% ylabel('\Delta AUC (high - low)'); 
+% title(strcat([num2str(sum(~isnan(delta_good))) ' sessions']));
+% grid off; axis square; set(gca, 'TIckDir', 'out'); box off;
+% %ylim([.5 2.5]);
+% xlim([30 200])
+% set(gcf, 'Color', [1 1 1]);
+
+%--------------------------------------------------------------------------
+%2j. Response to offer cue for all trials in mixed blocks, separated by reward volume and
 % stage group for example rat, G037, baseline-corrected using the 0.05 to
 % 0 s before offer cue.
 %--------------------------------------------------------------------------
@@ -242,7 +289,7 @@ for s=1:length(Stages)
         range(2) = yl(2);
     end
     axis square
-    title(['i Rat ' ratname ': ' Stages{s}]);
+    title(['j Rat ' ratname ': ' Stages{s}]);
     xline(0, '--k');
     xline(0.5, '--k');
 end
@@ -251,7 +298,7 @@ for s = 1:length(Stages)
 end
 
 %--------------------------------------------------------------------------
-%2j. Population average response to each reward volume, separated by reward
+%2k left. Population average response to each reward volume, separated by reward
 % block, min-max normalized, baseline-corrected using the 0.05 to 0 s
 % before offer cue, *p<0.05.
 %--------------------------------------------------------------------------
@@ -272,7 +319,7 @@ for bl=1:length(blocks)
         overrats = NaN(length(NAcc_ratlist),5);
         for rat=1:length(NAcc_ratlist)
             ratdata = AUC_byrat{rat};
-            overrats(rat,:) = ratdata.(Stages{s}).AUC(bl, :);
+            overrats(rat,:) = ratdata.(Stages{s}).AUC_norm(bl, :);
         end
         if s==1
             proAUC = overrats;
@@ -293,9 +340,9 @@ for bl=1:length(blocks)
             median(diAUC(:,rew)))/std(all_AUC(:));
     end
 end
-title('j Proestrus -, Diestrus --')
-axis square
-set(gca, 'TickDir', 'out'); box off
+title('k Proestrus -, Diestrus --')
+set(gcf, 'Color', [1 1 1]);
+set(gca, 'TickDir', 'out'); box off; axis square
 xticks(allrewards)
 xlabel('Reward volume')
 ylabel('AUC normalized')
@@ -305,5 +352,50 @@ disp('p-values:')
 disp(pvals)
 disp('effect sizes:')
 disp(effectsizes)
+
+%--------------------------------------------------------------------------
+%2k right top. Individual responses to high block largest reward, not normalized
+%--------------------------------------------------------------------------
+nexttile
+overrats_64ul_high = NaN(length(Stages), length(NAcc_ratlist));
+overrats_64ul_mixed = NaN(length(Stages), length(NAcc_ratlist));
+for s=1:length(Stages)
+    for rat=1:length(NAcc_ratlist)
+        ratdata = AUC_byrat{rat};
+        high = ratdata.(Stages{s}).AUC(2, :);
+        mixed = ratdata.(Stages{s}).AUC(1, :);
+        overrats_64ul_high(s, rat) = high(end);
+        overrats_64ul_mixed(s, rat) = mixed(end);
+    end
+end
+diff_high = overrats_64ul_high(1, :)-overrats_64ul_high(2, :);
+these_binedges = [-0.4125:0.025:-0.0125 0.0125:0.025:0.4125];
+histogram(diff_high, facecolor='k', binwidth=0.1, binedges=these_binedges)
+xline(0, '--k')
+xline(median(diff_high), '--k')
+xlim([-0.4 0.4])
+ylim([0 3.25])
+yticks(0:1:3)
+ylabel('# rats')
+set(gcf, 'Color', [1 1 1]);
+set(gca, 'TickDir', 'out'); box off; axis square
+title('k High')
+
+%--------------------------------------------------------------------------
+%2k right bottom. Individual responses to mixed block largest reward, not normalized
+%--------------------------------------------------------------------------
+nexttile
+diff_mix = overrats_64ul_mixed(1, :)-overrats_64ul_mixed(2, :);
+these_binedges = [-0.4125:0.025:-0.0125 0.0125:0.025:0.4125];
+histogram(diff_mix, facecolor='k', binwidth=0.1, binedges=these_binedges)
+xline(0, '--k')
+xline(median(diff_high), '--k')
+xlim([-0.4 0.4])
+ylim([0 3.25])
+yticks(0:1:3)
+ylabel('# rats')
+set(gcf, 'Color', [1 1 1]);
+set(gca, 'TickDir', 'out'); box off; axis square
+title('k Mixed')
 
 end

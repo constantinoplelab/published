@@ -10,7 +10,7 @@ s = pathsep;
 pathStr = [s, path, s];
 onPath  = contains(pathStr,...
     codedir, 'IgnoreCase', ispc);
-if ~onPath % only add code dir to path if it already isn't
+if ~onPath % only add code dir to path if it isn't already
     addpath(genpath(codedir))
 end
 

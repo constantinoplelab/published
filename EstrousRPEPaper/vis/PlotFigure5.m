@@ -9,7 +9,7 @@ s = pathsep;
 pathStr = [s, path, s];
 onPath  = contains(pathStr,...
     codedir, 'IgnoreCase', ispc);
-if ~onPath % only add code dir to path if it already isn't
+if ~onPath % only add code dir to path if it isn't already
     addpath(genpath(codedir))
 end
 
@@ -192,7 +192,7 @@ xticklabels({'Estrus', 'Diestrus'})
 axis square; set(gca, 'TickDir', 'out'); box off
 
 %CDF
-%do not set ambiguous distnance to zero, only truly membranous SIGs were
+%do not set ambiguous distance to zero, only truly membranous SIGs were
 %set to zero
 nexttile
 rawdata = EMdata.SIGMinimumDistancetoMembrane;

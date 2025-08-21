@@ -1,0 +1,104 @@
+function PlotExtendedData6(datadir) %, codedir
+%PlotExtendedData6 - Plots Extended Data 4. 
+% INPUTS:
+%   datadir - Local directory where ProcessData_ExtendedData6.mat was saved after running ProcessData_ExtendedData6
+%   codedir - Local directory where code (e.g., published/EstrousRPE/) was saved
+
+% %% Set up paths
+% s = pathsep;
+% pathStr = [s, path, s];
+% onPath  = contains(pathStr,...
+%     codedir, 'IgnoreCase', ispc);
+% if ~onPath % only add code dir to path if it already isn't
+%     addpath(genpath(codedir))
+% end
+
+%% Load data
+load([datadir, 'ProcessData_ExtendedData6'],'Alignments', ...
+    'da_rats_cpu','T');
+
+%% Create variables
+mycolors = {'#3852A3', '#4A3F98', '#7B287C', '#BD1F43', '#EC2024'};
+rewards = [4 8 16 32 64];
+rew_vols = {'4', '8', '16', '32', '64'};
+
+%% PLOT %%
+figure;
+set(gcf, 'Color', [1 1 1], 'Units', 'Inches', 'Position', [0, 0, 17, 9],...
+    'PaperUnits', 'Inches', 'PaperSize', [9, 5], 'renderer','painters')
+
+%--------------------------------------------------------------------------
+% ED6d. Event aligned DA response, split by reward in mixed block for off-target rats.
+%--------------------------------------------------------------------------
+for a = 1:length(Alignments)
+    DAplots = nan(1,length(rewards));
+    nexttile
+    for rew = 1:length(rewards)
+        da_reward = NaN(length(CPu_ratlist), length(T));
+        for rat = 1:length(CPu_ratlist)
+            da_rat = da_rats_cpu{rat};
+            da_reward(rat, :) = da_rat{rew, a};
+        end
+        %plot traces
+        % subplot(2, length(Alignments), a)
+        y = da_reward;
+        DAplots(rew) = plot(T, mean(y, 'omitnan'),...
+            'Color', mycolors{rew}); hold on
+        sem = std(y, 'omitnan')./sqrt(size(y, 1));
+        err = [mean(y, 'omitnan')-sem fliplr(mean(y, 'omitnan')+sem)];
+        err(isnan(err)) = 0;
+        h = fill([T fliplr(T)], err, 'k', 'FaceColor', mycolors{rew},...
+            'LineStyle', 'none'); hold on
+        set(h, 'facealpha', 0.25);
+        set(gcf, 'Color', [1 1 1]);
+        xlim([-0.5 1.25])
+        set(gca, 'TickDir', 'out'); box off;
+        xlabel(['Time from ', Alignments{a}]);
+        axis square
+    end
+    ylim([-1 2.5])
+    yticks(-2:1:2)
+    line([0 0], ylim, 'Color', [0 0 0], 'LineStyle', '--');
+    if a==length(Alignments)
+        legend(DAplots, rew_vols, 'location', 'best')
+    end
+    title(['d ' Alignments{a}])
+end
+
+%--------------------------------------------------------------------------
+% e. Response to offer cue for all trials in mixed blocks, separated by reward volume and
+% stage group for example rat, G027, baseline-corrected using the 0.05 to
+% 0 s before offer cue.
+%--------------------------------------------------------------------------
+channel = 2;
+sensor = 'DA';
+cycle = {'Proestrus', 'Diestrus'};
+if exist('DA_sub_cpu')==0
+    A = load([pdatadir 'G027_' sensor '_ch' num2str(channel) '_NAcc_tmac.mat']);
+    B = load([pdatadir 'G027_' sensor '_bstruct.mat']);
+    [DA_sub_cpu, DA_err, T] = rew_effect_stages('G027', B.bstruct,...
+        A.pstruct.('G027'), 1, 'Mixed', {'CPIn'}, rewards, stagenames, ...
+        0.5, 0, 'paper_npv');
+end
+for e=1:length(cycle)
+    nexttile
+    for rew=1:length(rewards)
+        da_mat = DA_sub_cpu{rew, e};
+        da_err = DA_err{rew, e};
+        plot(T, da_mat, Color=mycolors{rew}, LineWidth=0.5,...
+            displayname=rew_vols{rew}); hold on
+        h = fill([T fliplr(T)], da_err, 'k', facecolor=mycolors{rew},...
+            LineStyle='none');
+        set(h, 'facealpha', 0.25);
+    end
+    xlim([-0.5 1.25])
+    xticks(-1:0.5:1)
+    yticks(-1:1:2)
+    set(gca, 'TickDir', 'out'); box off
+    xlabel('Time from offer cue (s)');
+    ylabel('\Delta F/F')
+    ylim([-1.2 2])
+    xline(0, '--k');
+    axis square
+    title(['e Rat G027 ' cycle{e}])
+end

@@ -16,8 +16,14 @@ for rat = 1:frats
     ratname = f_ratlist{rat};
     disp([ratname ' ' num2str(rat) ' out of ' num2str(frats)])
 
-    stagedS = RatBehaviorData.(ratname);
-    stagedS = stagedS.S;
+    S = RatBehaviorData.(ratname);
+    S = S.S;
+
+    %remove empty stage fields
+    emptystageidx = cellfun(@(x) ~isfield(x, 'Stage'), S.pd);
+    stagedS = S;
+    stagedS.pd(emptystageidx) = [];
+    stagedS.peh(emptystageidx) = [];
 
     numsess = length(stagedS.pd);
 

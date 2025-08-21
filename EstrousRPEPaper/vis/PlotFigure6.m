@@ -9,7 +9,7 @@ s = pathsep;
 pathStr = [s, path, s];
 onPath  = contains(pathStr,...
     codedir, 'IgnoreCase', ispc);
-if ~onPath % only add code dir to path if it already isn't
+if ~onPath % only add code dir to path if it isn't already
     addpath(genpath(codedir))
 end
 
@@ -18,6 +18,9 @@ load([datadir, 'ProcessData_Figure6'], 'ratlist_shEsr1',...
     'TABLE_tet', 'TABLE_lenti', 'ITIbyBlock_shEsr1_screen',...
     'ITIbyBlock_shEsr1_noscreen', 'ratTrial', 'Ls', 'estradiol',...
     'RatConc');
+
+%% Load data
+load([datadir, 'ProcessData_Figure1'], 'ITIbyBlock');
 
 %% PLOT %%
 figure;
@@ -114,39 +117,8 @@ effectsize = (mean(con_norm, 'omitnan') - mean(exp_norm, 'omitnan'))...
 title(['d rank sum p=' num2str(pval) ', effect size =' num2str(effectsize)])
 
 %--------------------------------------------------------------------------
-% 6e. Example rat behavioral sensitivity to the blocks
-%--------------------------------------------------------------------------
-nexttile
-exrat = 5; %
-pre_hi_rat = ITIbyBlock_shEsr1_screen.('predox').high(exrat);
-pre_hierr_rat = ITIbyBlock_shEsr1_screen.('predox').high_err(exrat);
-pre_low_rat = ITIbyBlock_shEsr1_screen.('predox').low(exrat);
-pre_lowerr_rat = ITIbyBlock_shEsr1_screen.('predox').low_err(exrat);
-shEsr1_hi_rat = ITIbyBlock_shEsr1_screen.('duringdox').high(exrat);
-shEsr1_hierr_rat = ITIbyBlock_shEsr1_screen.('duringdox').high_err(exrat);
-shEsr1_low_rat = ITIbyBlock_shEsr1_screen.('duringdox').low(exrat);
-shEsr1_lowerr_rat = ITIbyBlock_shEsr1_screen.('duringdox').low_err(exrat);
-l = shadedErrorBar([1 2], [pre_low_rat pre_hi_rat],...
-    [pre_lowerr_rat pre_hierr_rat], 'lineProps', {'-', 'Color',...
-    doxstatecolors{1}, 'LineWidth', 0.5}); hold on
-arrayfun(@(line) arrayfun(@(e) set(e, LineStyle='none'), line.edge), l)
-l = shadedErrorBar([1 2], [shEsr1_low_rat shEsr1_hi_rat],...
-    [shEsr1_lowerr_rat shEsr1_hierr_rat], 'lineProps', {'-', 'Color',...
-    doxstatecolors{2}, 'LineWidth', 0.5}); hold on
-arrayfun(@(line) arrayfun(@(e) set(e, LineStyle='none'), line.edge), l)
-xlim([0.5 2.5])
-xticks(1:2)
-xticklabels({'Low', 'High'})
-xlabel('Reward block')
-yticks(-3:1:3)
-ylim([-2.1 1.7])
-ylabel('Detrended init.')
-axis square; set(gca, 'TickDir', 'out'); box off
-title('e Example rat')
-
-%--------------------------------------------------------------------------
-% 6f. Population level shEsr1 affect on behavioral sensitivity to the
-% blocks
+% 6e. Population level shEsr1 affect on behavioral sensitivity to the
+% blocks 
 %--------------------------------------------------------------------------
 nexttile
 pre_delta = ITIbyBlock_shEsr1_screen.('predox').delta;
@@ -183,8 +155,67 @@ yticks(-3:1:3)
 ylim([-2.1 1.7])
 ylabel('Detrended init.')
 axis square; set(gca, 'TickDir', 'out'); box off
-title(['f N=' num2str(length(ratlist_shEsr1))])
+title(['e N=' num2str(length(ratlist_shEsr1))])
 subtitle(['sign rank p = ' num2str(pval_delta) ', d = ' num2str(effectsize_delta)])
+
+%--------------------------------------------------------------------------
+% 6f. Population level shEsr1 affect on behavioral sensitivity to the
+% blocks medians compared to diestrus (of hormonally-modulated rats) and males
+%--------------------------------------------------------------------------
+%fig 1 data
+cycle = {'Proestrus', 'Diestrus'};
+group_colors = {'#E87003'; '#7358C6'; '#9E9D9D'}; %dark orange, purple, black
+pro_deltas = ITIbyBlock.(cycle{1}).deltas_det;
+di_deltas = ITIbyBlock.(cycle{2}).deltas_det;
+hormmod = (pro_deltas - di_deltas) > 0;
+pro_low = cell2mat(ITIbyBlock.(cycle{1}).low_ITI_det)';
+pro_low_hm = pro_low(hormmod);
+pro_high = cell2mat(ITIbyBlock.(cycle{1}).high_ITI_det)';
+pro_high_hm = pro_high(hormmod);
+di_low = cell2mat(ITIbyBlock.(cycle{2}).low_ITI_det)';
+di_low_hm = di_low(hormmod);
+di_high = cell2mat(ITIbyBlock.(cycle{2}).high_ITI_det)';
+di_high_hm = di_high(hormmod);
+male_low = cell2mat(ITIbyBlock.('Male').low_ITI_det)';
+male_high = cell2mat(ITIbyBlock.('Male').high_ITI_det)';
+
+nexttile
+pl = NaN(5, 1);
+pl(1) = plot([1 2], median([pre_low' pre_high'], 'omitnan'),...
+    '.', markersize=30, color=doxstatecolors{1}); hold on
+errorbar([1 2], median([pre_low' pre_high'], 'omitnan'),...
+    sem([pre_low', pre_high']), linewidth=0.5,...
+    capsize=10, color=doxstatecolors{1}); hold on
+pl(2) = plot([1 2], median([shEsr1_low' shEsr1_high'], 'omitnan'),...
+    '.', markersize=30, color=doxstatecolors{2}); hold on
+errorbar([1 2], median([shEsr1_low' shEsr1_high'], 'omitnan'),...
+    sem([shEsr1_low', shEsr1_high']), 'k', linewidth=0.5, ...
+    capsize=10, color=doxstatecolors{2}); hold on
+pl(3) = plot([3 4], median([pro_low_hm pro_high_hm], 'omitnan'),...
+    '.', markersize=30, color=group_colors{1}); hold on
+errorbar([3 4], median([pro_low_hm pro_high_hm], 'omitnan'),...
+    sem([pro_low_hm, pro_high_hm]), linewidth=0.5,...
+    capsize=10, color=group_colors{1}); hold on
+pl(4) = plot([3 4], median([di_low_hm di_high_hm], 'omitnan'),...
+    '.', markersize=30, color=group_colors{2}); hold on
+errorbar([3 4], median([di_low_hm di_high_hm], 'omitnan'),...
+    sem([di_low_hm, di_high_hm]), linewidth=0.5, ...
+    capsize=10, color=group_colors{2}); hold on
+pl(5) = plot([3 4], median([male_low male_high], 'omitnan'),...
+    '.', markersize=30, color=group_colors{3}); hold on
+errorbar([3 4], median([male_low male_high], 'omitnan'),...
+    sem([male_low, male_high]), linewidth=0.5, ...
+    capsize=10, color=group_colors{3}); hold on
+legend(pl, {'Pre-shEsr1', 'shEsr1', 'Proestrus', 'Diestrus', 'Males'},...
+    'Location','best')
+ylim([-1.25 1.25])
+yticks(-3:1:3)
+xlim([0.5 4.5])
+xticks(1:1:4)
+xticklabels({'Low', 'High', 'Low', 'High'})
+ylabel('Init. time (s, detrended)')
+grid off; set(gca, 'TickDir', 'out'); box off; axis square
+title('f')
 
 %--------------------------------------------------------------------------
 % 6g. Model simulation of reduced gain on behavioral sensitivity to the
