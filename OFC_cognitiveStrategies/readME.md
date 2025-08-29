@@ -18,9 +18,9 @@ process directory contains code to perform every analysis in the paper and must 
 
 ## Code dependencies
 This project was developed with Matlab 2023a, and uses the following toolboxes
-	Curve fitting
-	XX
-  XX
+- Curve fitting
+- Optimization
+- Statistics and Machine Learning
 	
 
 ## Directory structure
