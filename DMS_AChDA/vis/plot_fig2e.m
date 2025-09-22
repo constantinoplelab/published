@@ -1,7 +1,7 @@
-function plot_fig2d(datadir)
-% Plot average event-aligned dopamine release during mixed blocks for
-% different reward offers. Signals are z-scored and baseline corrected
-% before pooling across rats (N = 10).
+function plot_fig2e(datadir)
+% Plot average event-aligned dopamine release split by delay to reward 
+% quartile. Signals are z-scored and baseline corrected before pooling
+% across rats (N = 10).
 %
 % INPUTS
 % datadir: file path of data downloaded from Zenodo. Link to download can
@@ -16,17 +16,16 @@ fulldatadir = fullfile(basedir, strcat(sensor, '_', region));
 
 % load data
 fprintf('Loading all rats in %s..\n', fulldatadir)
-files = dir(fullfile(fulldatadir, strcat('*_avgFbyVol_bc.mat')));
-
+files = dir(fullfile(fulldatadir, strcat('*_avgFbyDelay_bc.mat')));
 files = {files.name};
 fprintf('%i files found\n', length(files));
 
-data_rats = cell(5,6); % reward, event
+data_rats = cell(4,5); % delay bin, event
 for f=1:length(files)
     load(fullfile(fulldatadir, files{f}), 'data');
-    for rew=1:5
-        for e=1:6
-            data_rats{rew,e}(f,:) = data{rew,e};
+    for d=1:4
+        for e=1:5
+            data_rats{d,e}(f,:) = data{d,e};
         end
     end
 end
@@ -35,22 +34,22 @@ end
 data_rats = data_rats(:,2:end);
 
 % plotting parameters
-mycolor = getColorScheme('volume');
+mycolor = getColorScheme('delay');
 x_range = [-.2 0.8];
 T = linspace(-5, 10, 7229);
 
 figure;
 set(gcf, 'Color', [1 1 1], 'Units', 'Inches',...
-    'Position', [6,4,10,2.4],'renderer','painters');
-A = {'Offer Cue', 'Reward Port On', 'Reward Cue', 'Reward Delivery',...
-    'Opt Out'}; % event names
+    'Position', [6,4,9.4,2.4],'renderer','painters');
+A = {'Offer Cue', 'Reward Port On', ...
+    'Reward Cue', 'Reward Delivery'}; % event names
 t = tiledlayout(1, length(A));
 
 range = [0 0]; % plot y axis range; for loop below will automatically adjust this
 for a=1:length(A)
     nexttile(a);
-    for rew=1:5
-        plotPretty(T, data_rats{rew,a}, mycolor{rew})
+    for d=1:4
+        plotPretty(T, data_rats{d,a}, mycolor{d})
     end
     xlim(x_range);
     yl = ylim;

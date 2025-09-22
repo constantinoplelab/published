@@ -1,7 +1,6 @@
-function plot_fig2d(datadir)
-% Plot average event-aligned dopamine release during mixed blocks for
-% different reward offers. Signals are z-scored and baseline corrected
-% before pooling across rats (N = 10).
+function plot_fig2f(datadir)
+% Plot average event-aligned dopamine release split by reward port side.
+% Signals are z-scored and baseline corrected before pooling across rats (N = 10).
 %
 % INPUTS
 % datadir: file path of data downloaded from Zenodo. Link to download can
@@ -16,26 +15,26 @@ fulldatadir = fullfile(basedir, strcat(sensor, '_', region));
 
 % load data
 fprintf('Loading all rats in %s..\n', fulldatadir)
-files = dir(fullfile(fulldatadir, strcat('*_avgFbyVol_bc.mat')));
-
+files = dir(fullfile(fulldatadir, strcat('*_avgFbySide_bc.mat')));
 files = {files.name};
 fprintf('%i files found\n', length(files));
 
-data_rats = cell(5,6); % reward, event
+dataC_rats = cell(1,6);
+dataI_rats = cell(1,6);
 for f=1:length(files)
-    load(fullfile(fulldatadir, files{f}), 'data');
-    for rew=1:5
-        for e=1:6
-            data_rats{rew,e}(f,:) = data{rew,e};
-        end
+    load(fullfile(fulldatadir, files{f}), 'dataContra', 'dataIpsi');
+    for e=1:6
+        dataC_rats{e}(f,:) = dataContra{e};
+        dataI_rats{e}(f,:) = dataIpsi{e};
     end
 end
 
 % drop first event (CPOn)
-data_rats = data_rats(:,2:end);
+dataC_rats = dataC_rats(:,2:end);
+dataI_rats = dataI_rats(:,2:end);
 
 % plotting parameters
-mycolor = getColorScheme('volume');
+mycolor = getColorScheme('side');
 x_range = [-.2 0.8];
 T = linspace(-5, 10, 7229);
 
@@ -49,13 +48,11 @@ t = tiledlayout(1, length(A));
 range = [0 0]; % plot y axis range; for loop below will automatically adjust this
 for a=1:length(A)
     nexttile(a);
-    for rew=1:5
-        plotPretty(T, data_rats{rew,a}, mycolor{rew})
-    end
+    plotPretty(T, dataC_rats{a}, mycolor.contra)
+    plotPretty(T, dataI_rats{a}, mycolor.ipsi)
     xlim(x_range);
     yl = ylim;
     range = updateYlim(range, yl);
-
     xlabel(A{a});
     set(gca, 'xtick', [0, 0.3, 0.6]);
     axis square
