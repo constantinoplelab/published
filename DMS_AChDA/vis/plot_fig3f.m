@@ -1,5 +1,5 @@
-function plot_fig3c(datadir)
-% Plot simulated value and trial initiation time from volume-modulated
+function plot_fig3f(datadir)
+% Plot simulated value and trial initiation time from delay-modulated
 % RPE model (left) and block-average trial initiation times overlaid with
 % rat data (right).
 %
@@ -10,11 +10,11 @@ function plot_fig3c(datadir)
 % These model hyperparameters were determined by simulating with a grid of
 % parameter combinations and selecting those that qualitatively best
 % captured rats' data
-alpha = 0.5; % learning rate
-scalingfactor = 0.48; % scaling factor 
+alpha = 0.46; % learning rate
+scalingfactor = 0.54; % scaling factor
 
-[modelITI, modelValue, ratTrial] = run_vanillaTD(datadir, 'reward', ...
-    alpha, scalingfactor);
+[modelITI, modelValue, ratTrial] = run_vanillaTD(datadir, 'delay', alpha, ...
+    scalingfactor);
 
 exampleRat = 'J029';
 blkLength = 40; % each block is 40 trials
@@ -31,7 +31,7 @@ inner = tiledlayout(main, 1,3, tilespacing = 'compact', ...
 % Plot model simulated value and trial initiation time for 3 consecutive
 % blocks
 nexttile(inner, [1 2]);
-yl = [1 5];
+yl = [0 12];
 mixedcolor=[0.4823529411764706 0.1568627450980392 0.48627450980392156];
 fill([0 blkLength blkLength 0], [yl(1) yl(1) yl(2) yl(2)],...
     mixedcolor, facealpha=0.15, edgecolor='none'); hold on
@@ -79,39 +79,43 @@ xlabel('Trial')
 ylabel('Time to initiate trial')
 set(gca, tickdir='out', box='off');
 
-% Plot average model simulated trial initiation time in low and high blocks
+% Plot average model simulated trial initiation time conditioned on
+% previous delay
 ratList = fields(ratTrial);
-modelITI_low = nan(length(ratList),1);
-modelITI_mixed = nan(length(ratList),1);
-modelITI_high = nan(length(ratList),1);
-ratITI_low = nan(length(ratList),1);
-ratITI_mixed = nan(length(ratList),1);
-ratITI_high = nan(length(ratList),1);
+modelITI_short = nan(length(ratList),1);
+modelITI_long = nan(length(ratList),1);
+ratITI_short = nan(length(ratList),1);
+ratITI_long = nan(length(ratList),1);
 
 for r=1:length(ratList)
     ratname = ratList{r};
-    Block = ratTrial.(ratname).block; % low block=3, high block=2
-    modelITI_low(r) = mean(modelITI.(ratname)(Block==3), 'omitnan');
-    modelITI_mixed(r) = mean(modelITI.(ratname)(Block==1), 'omitnan');
-    modelITI_high(r) = mean(modelITI.(ratname)(Block==2), 'omitnan');
-    ratITI_low(r) = mean(ratTrial.(ratname).ITI(Block==3), 'omitnan');
-    ratITI_mixed(r) = mean(ratTrial.(ratname).ITI(Block==1), 'omitnan');
-    ratITI_high(r) = mean(ratTrial.(ratname).ITI(Block==2), 'omitnan');
+    
+    prevDelay = [nan; ratTrial.(ratname).reward_delay(1:end-1)];
+    prevDelay(prevDelay==100) = nan;
+    posthit = [0; ratTrial.(ratname).hits(1:end-1)];
+    q = quantile(prevDelay, [0.25 0.5 0.75]);
+    delay_bin = discretize(prevDelay, [-inf q inf]);
+    
+    usethese = posthit;
+    modelITI_short(r) = mean(modelITI.(ratname)(delay_bin==1 & usethese), 'omitnan');
+    modelITI_long(r) = mean(modelITI.(ratname)(delay_bin==4 & usethese), 'omitnan');
+    ratITI_short(r) = mean(ratTrial.(ratname).ITI(delay_bin==1 & usethese), 'omitnan');
+    ratITI_long(r) = mean(ratTrial.(ratname).ITI(delay_bin==4 & usethese), 'omitnan');
 end
 
 nexttile(inner, [1 1]);
-errorbar([mean(modelITI_low), mean(modelITI_mixed), mean(modelITI_high)],...
-    [sem(modelITI_low), sem(modelITI_mixed), sem(modelITI_high)], ...
+errorbar([mean(modelITI_short), mean(modelITI_long)],...
+    [sem(modelITI_short), sem(modelITI_long)], ...
     'k_', capsize=0); hold on
-errorbar([mean(ratITI_low), mean(ratITI_mixed), mean(ratITI_high)], ...
-    [sem(ratITI_low), sem(ratITI_mixed), sem(ratITI_high)], ...
+errorbar([mean(ratITI_short), mean(ratITI_long)], ...
+    [sem(ratITI_short), sem(ratITI_long)], ...
     'b_', capsize=0)
 
-xlim([.5 3.5]);
-ylim([1.5 4])
-set(gca, tickdir='out', box='off', xtick=[1 2 3], ...
-    xticklabels={'Low', 'Mixed', 'High'}, ytick=2:4);
-xlabel('Block type');
+xlim([.5 2.5]);
+ylim([1.2 3.7])
+set(gca, tickdir='out', box='off', xtick=[1 2], ...
+    xticklabels={'Short', 'Long'}, ytick=2:3);
+xlabel('Previous delay');
 ylabel('Trial initiation time (s)')
 legend({'model', 'rat'})
 
