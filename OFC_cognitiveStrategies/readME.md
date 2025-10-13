@@ -1,6 +1,6 @@
 # OFCpaper: analysis of behavior and neural activity early and late in learning of hidden states in a temporal wagering task
 
-This is the code used in [Schiereck, S. S., Pérez-Rivera, D. T., Mah, A., DeMaegd, M. L.,Hocker, D., Ward, R. M., Savin, C., & Constantinople, C. M. Neural dynamics in the orbitofrontal cortex reveal cognitive strategies] (https://www.biorxiv.org/content/10.1101/2024.10.29.620879v2).
+This is the code used in [Schiereck, S. S., Pérez-Rivera, D. T., Mah, A., DeMaegd, M. L.,Hocker, D., Ward, R. M., Savin, C., & Constantinople, C. M. The orbitofrontal cortex updates beliefs for state inference.] (https://www.biorxiv.org/content/10.1101/2024.10.29.620879v2).
 
 The analyses and figures are broken into 5 primary sets:
 1. Analysis of expert rat's behavior during the task along with model predictions
