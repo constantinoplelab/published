@@ -10,7 +10,7 @@ The analyses and figures are broken into 5 primary sets:
 5. Analysis of block naive electrophysiology data
 	
 ## Data
-The data associated with this work can be found on Zenodo at: XXX
+The data associated with this work can be found on Zenodo at: https://zenodo.org/records/16997337
 
 ## Demos
 vis directory contains code to generate every figure in the paper.
