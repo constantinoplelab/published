@@ -2,6 +2,10 @@ function plot_fig6a(datadir)
 % Plot z-scored dopamine and acetylcholine responses on contralateral trials
 % aligned to when the side LED turns on, averaged across rats. N = 10 DA
 % rats, N = 10 ACh rats.
+%
+% INPUTS
+% datadir: file path of data downloaded from Zenodo. Link to download can
+% be found in README.
 
 SON_DA = getSONcontradata(datadir, 'DA');
 SON_ACh = getSONcontradata(datadir, 'ACh');
