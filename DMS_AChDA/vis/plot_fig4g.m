@@ -1,4 +1,11 @@
 function plot_fig4g(datadir)
+% Plot time to opt-out regressed against reward delay and reward volume in
+% the past 15 trials during mixed blocks, averaged acros rats. Ten trials
+% are shown for visualization purposes. N = 16 rats.
+%
+% INPUTS
+% datadir: file path of data downloaded from Zenodo. Link to download can
+% be found in README.
 
 load(fullfile(datadir, 'data-published/ratlist.mat'), 'ratList');
 nback = 15;
