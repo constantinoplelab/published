@@ -3,6 +3,10 @@ function plot_fig4f(datadir)
 % delay on the previous trial, averaged across rats. N = 16 rats.
 % Short/long delay trials are defined the bottom/top quartile of the reward
 % delay distribution across sessions for each rat.
+%
+% INPUTS
+% datadir: file path of data downloaded from Zenodo. Link to download can
+% be found in README.
 
 % load all rats
 load(fullfile(datadir, 'data-published/ratlist.mat'), 'ratList');
