@@ -1,4 +1,11 @@
 function plot_fig5g(datadir)
+% Plot firing rate of example cells aligned to Offer Cue on 3 consecutive
+% trials where a big positive/negative RPE on the first trial is followed
+% by a negligible RPE on the second trial.
+%
+% INPUTS
+% datadir: file path of data downloaded from Zenodo. Link to download can
+% be found in README.
 
 fpath = fullfile(datadir, 'data-published/NpxData/pD1pD2.mat');
 load(fpath, 'SU', 'S')
