@@ -7,7 +7,7 @@ function plot_fig1f(datadir)
 % be found in README.
 
 
-load(fullfile(datadir, 'data-published', ...
+load(fullfile(datadir, 'data-published-DLCdata', ...
     'J063_AChDA_20230201_HJJ_DLC.mat'), 'AlignmentStruct')
 plotDLCaligned(AlignmentStruct);
 
