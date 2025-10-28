@@ -24,7 +24,7 @@ The analyses and figures are broken into:
 The data associated with this work can be found on Zenodo at: 
 1. https://zenodo.org/records/17457318 (Behavioral data, electrophysiology data, DeepLabCut data)
 2. https://zenodo.org/records/17458072 (Rat metadata, post-processed photometry and behavioral data)
-3. (DMS photometry data, single-color imaging)
+3. https://zenodo.org/records/17458437 (DMS photometry data, single-color imaging)
 4. (DMS,DLS photometry data, dual-color imaging)
 5. (NAcc photometry data, single-color imaging)
 
