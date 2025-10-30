@@ -26,7 +26,7 @@ The data associated with this work can be found on Zenodo at:
 2. https://zenodo.org/records/17458072 (Rat metadata, post-processed photometry and behavioral data)
 3. https://zenodo.org/records/17458437 (DMS photometry data, single-color imaging)
 4. https://zenodo.org/records/17460638 (DLS photometry data, dual-color imaging)
-5. (DMS photometry data, dual-color imaging)
+5. https://zenodo.org/records/17478653 (DMS photometry data, dual-color imaging)
 6. (NAcc photometry data, single-color imaging)
 
 # Reproducing figures
