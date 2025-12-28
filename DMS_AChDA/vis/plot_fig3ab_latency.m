@@ -1,4 +1,4 @@
-function plot_fig2ab_latency(datadir)
+function plot_fig3ab_latency(datadir)
 % Plot latency to peak/trough in DA/ACh at offer cue (left) and reward cue (right). 
 % N = 10 DA rats, N = 10 ACh rats
 %
