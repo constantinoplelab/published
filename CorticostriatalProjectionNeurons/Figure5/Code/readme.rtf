@@ -1,0 +1,65 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2870
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+{\*\expandedcolortbl;;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf0 Visualization code:
+\f1\b0 \
+\
+- study_20260609_figgen_allepoch.m: the main visualization code, loads post-processed files, does some averaging, then plots all of the results. Can  change specifics about plotting here\
+\
+
+\f0\b Post-process code:
+\f1\b0 \
+\
+- postprocess_allofc.m: loads all of the 100 samples of the decoding for ofc data (i.e., each sample does the 20-fold cross validated decoding on same number of neurons as projection neurons, but chooses new neurons each time). Aggregates and averages/medians them\
+\
+- postprocess_shuffle.m: same, but for the shuffling of projection neuron data. Each sample is a random shuffle of the most likely block (or 2nd).\
+\
+
+\f0\b Run code: 
+\f1\b0 \
+\
+- run_decoding_mlb.m: does decoding of projection neuron data using 20 fold cross validation\
+\
+- run_decoding_mlb_allofc.m: does single instance of decoding from sample of ofc population using 20 fold cross validation. reads in preprocessed data from a file for this\
+\
+- run_decoding_mlb_shuffle.m: does decoding on shuffled projection neuron data, but only single instance of shuffling. Reads in pre-processed data file\
+\
+
+\f0\b Preprocessing code: \
+\
+
+\f1\b0 - run_preprocess_decode_mlb_allofc.m: uses Maggie\'92s Matlab table to fine candidate ofc sessions for the decoding, then parses them to get trial information (most likely block from bayes model, rewarded trials, etc.). Parses into training and testing data for entire experiment. Used as input to run_decoding_mlb_allofc.m\
+\
+- run_preprocess_decode_mlb_shuffle.m:  Parses into training and testing data for entire shuffle experiment. Used as input to run_decoding_mlb_shuffle.m. \
+\
+
+\f0\b Utility code:\
+
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 - dSTR_decode_parsedata.m: parses projection neuron data to calculate most likely block labels from Andrew\'92s Bayes model, as well as extracts trial information\
+\
+- dSTR_decode_parsedata_rawdat.m: does the same parsing, but for the ofc data, which is in a slightly different file format that was not previously aggregated by Maggie\
+\
+
+\f0\b Batch code: 
+\f1\b0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+- batch_preprocess_allofc.m. the explicit commands to create preprocessing data form the ofc population\
+\
+- batch_preprocess_shuffle.m: same, but for shuffle data\
+\
+- template_decode_dSTR_torch.sh: the generic slurm script file to run the decoding code on torch\
+\
+- template_decode_allofc_torch.sh: same, but for and OFC data instance\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 - template_decode_shuffle_torch.sh: same, but for a shuffle instance\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+}
